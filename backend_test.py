@@ -310,6 +310,85 @@ class TVPanelAPITester:
             self.log_test("Contact Types CRUD", False, "Contact type CRUD operations failed", str(e))
             return False
     
+    def test_environment_variables(self) -> bool:
+        """Test if Telegram bot environment variables are properly loaded"""
+        try:
+            # Check if .env file exists and contains bot tokens
+            env_file_path = "/app/backend/.env"
+            
+            if not os.path.exists(env_file_path):
+                self.log_test("Environment Variables", False, ".env file not found")
+                return False
+            
+            # Read .env file and check for required variables
+            required_vars = [
+                "TELEGRAM_BOT_TOKEN",
+                "REMINDER_TELEGRAM_TOKEN", 
+                "ADMIN_USER_ID",
+                "WHATSAPP_ADMIN_NUMBER",
+                "DATABASE_URL"
+            ]
+            
+            found_vars = {}
+            with open(env_file_path, 'r') as f:
+                for line in f:
+                    if '=' in line and not line.strip().startswith('#'):
+                        key, value = line.strip().split('=', 1)
+                        found_vars[key] = value
+            
+            missing_vars = []
+            for var in required_vars:
+                if var not in found_vars or not found_vars[var]:
+                    missing_vars.append(var)
+            
+            if missing_vars:
+                self.log_test("Environment Variables", False, f"Missing or empty variables: {missing_vars}")
+                return False
+            
+            # Check if bot tokens look valid (should be long strings)
+            bot_tokens = ["TELEGRAM_BOT_TOKEN", "REMINDER_TELEGRAM_TOKEN"]
+            for token_var in bot_tokens:
+                token_value = found_vars.get(token_var, "")
+                if len(token_value) < 40:  # Bot tokens are typically much longer
+                    self.log_test("Environment Variables", False, f"{token_var} appears to be invalid (too short)")
+                    return False
+            
+            self.log_test("Environment Variables", True, f"All required variables found: {list(found_vars.keys())}")
+            return True
+            
+        except Exception as e:
+            self.log_test("Environment Variables", False, "Failed to check environment variables", str(e))
+            return False
+    
+    def test_database_configuration(self) -> bool:
+        """Test database configuration and connection"""
+        try:
+            # Test server root endpoint to check database type
+            response = requests.get(f"{self.base_url}/", timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                database_info = data.get('database', 'Unknown')
+                
+                # Check if SQLite database file exists
+                sqlite_db_path = "/app/backend/tv_panel.db"
+                sqlite_exists = os.path.exists(sqlite_db_path)
+                
+                if sqlite_exists:
+                    # Get file size to check if it's populated
+                    file_size = os.path.getsize(sqlite_db_path)
+                    self.log_test("Database Configuration", True, f"SQLite database found ({file_size} bytes), Server reports: {database_info}")
+                    return True
+                else:
+                    self.log_test("Database Configuration", False, f"SQLite database file not found at {sqlite_db_path}")
+                    return False
+            else:
+                self.log_test("Database Configuration", False, f"Cannot check database configuration, server status: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Database Configuration", False, "Failed to check database configuration", str(e))
+            return False
+
     def test_password_generator(self) -> bool:
         """Test password generator endpoint"""
         try:
