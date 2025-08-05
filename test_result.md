@@ -219,9 +219,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "All frontend testing completed successfully"
+    - "MySQL Database Migration"
+    - "Telegram Bot Configuration"
   stuck_tasks: []
-  test_all: true
+  test_all: false  
   test_priority: "high_first"
 
 agent_communication:
