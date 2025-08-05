@@ -801,7 +801,7 @@ const EditableTable = ({ title, endpoint, fields, icon, canAdd = true, canDelete
           </tbody>
         </table>
         
-        {items.length === 0 && (
+        {enhancedItems.length === 0 && (
           <div className="no-data">
             <p>Brak danych do wyświetlenia</p>
             {canAdd && (
