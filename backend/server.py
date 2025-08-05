@@ -446,8 +446,22 @@ async def generate_password(length: int = 8):
     password = ''.join(random.choice(characters) for _ in range(length))
     return {"password": password}
 
-# Include router
+# Include routers
 app.include_router(api_router)
+
+# Import and include additional routers
+try:
+    from reports import router as reports_router
+    from mobile_api import mobile_router
+    
+    app.include_router(reports_router)
+    app.include_router(mobile_router)
+    
+    print("📊 Reports API loaded")
+    print("📱 Mobile API loaded")
+    
+except ImportError as e:
+    print(f"⚠️ Could not load additional modules: {e}")
 
 # Root endpoint
 @app.get("/")
