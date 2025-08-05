@@ -158,6 +158,9 @@ backend:
         - working: true
           agent: "main"
           comment: "Successfully imported JSON data into SQL database. Data migration from original format completed."
+        - working: true
+          agent: "testing"
+          comment: "✅ VERIFIED: JSON importer successfully populated database with 11 records (Payment Methods, Pricing Config, FAQ Questions, Smart TV Apps, Android Apps)"
 
 frontend:
   - task: "SQL Integration UI"
