@@ -191,7 +191,7 @@ async def init_database():
         {
             "id": "client-2", 
             "name": "Anna Nowak",
-            "expires_date": today + timedelta(days=5),
+            "expires_date": datetime.combine(today + timedelta(days=5), datetime.min.time()),
             "panel_id": "panel-2",
             "login": "annanowak",
             "password": "secure456",
