@@ -413,6 +413,112 @@ const TelegramBot = () => {
   );
 };
 
+// CSV Import Component
+const CSVImport = ({ onSuccess }) => {
+  const [file, setFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const handleFileSelect = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile && selectedFile.type === 'text/csv') {
+      setFile(selectedFile);
+      setResult(null);
+    } else {
+      alert('Proszę wybrać plik CSV');
+    }
+  };
+
+  const handleImport = async () => {
+    if (!file) {
+      alert('Proszę wybrać plik CSV');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const token = localStorage.getItem('tv_panel_token');
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await axios.post(`${API}/import-csv/clients`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setResult(response.data);
+      setFile(null);
+      if (onSuccess) onSuccess();
+    } catch (error) {
+      setResult({
+        message: `❌ Błąd importu: ${error.response?.data?.detail || error.message}`,
+        imported_count: 0,
+        errors: [error.response?.data?.detail || error.message]
+      });
+    }
+    setUploading(false);
+  };
+
+  return (
+    <div className="csv-import">
+      <h3>📤 Import klientów z CSV</h3>
+      
+      {result && (
+        <div className={`alert ${result.message?.includes('❌') ? 'alert-error' : 'alert-success'}`}>
+          <div><strong>{result.message}</strong></div>
+          {result.imported_count > 0 && (
+            <div>✅ Zaimportowano: {result.imported_count} klientów</div>
+          )}
+          {result.total_processed && (
+            <div>📊 Przetworzono: {result.total_processed} wierszy</div>
+          )}
+          {result.errors && result.errors.length > 0 && (
+            <div>
+              <strong>Błędy:</strong>
+              <ul>
+                {result.errors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="import-controls">
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleFileSelect}
+          disabled={uploading}
+        />
+        
+        {file && (
+          <div className="file-info">
+            <span>📄 {file.name} ({(file.size / 1024).toFixed(1)} KB)</span>
+          </div>
+        )}
+        
+        <button
+          onClick={handleImport}
+          disabled={!file || uploading}
+          className="btn-primary"
+        >
+          {uploading ? 'Importowanie...' : '📤 Importuj CSV'}
+        </button>
+      </div>
+
+      <div className="csv-format-info">
+        <small>
+          <strong>Format CSV:</strong> ID, Nazwa, Data wygaśnięcia, Panel, Login, Aplikacja, MAC, Line ID, Status, Dni do wygaśnięcia, Dane Kontaktowe, Typ Kontaktu, Klucz, Hasło
+        </small>
+      </div>
+    </div>
+  );
+};
+
 // Enhanced Editable Table Component
 const EditableTable = ({ title, endpoint, fields, icon, canAdd = true, canDelete = true }) => {
   const [items, setItems] = useState([]);
