@@ -869,6 +869,122 @@ async def get_bot_stats(current_admin = Depends(get_current_admin), db: Session 
         "notifications_today": expiring_clients  # Approximate
     }
 
+# CSV Import
+@api_router.post("/import-csv/clients")
+async def import_clients_csv(
+    file: UploadFile = File(...),
+    current_admin = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """Import clients from CSV file"""
+    if not file.filename.endswith('.csv'):
+        raise HTTPException(status_code=400, detail="Plik musi być w formacie CSV")
+    
+    try:
+        # Read CSV content
+        content = await file.read()
+        csv_content = content.decode('utf-8')
+        
+        # Parse CSV
+        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        
+        imported_count = 0
+        errors = []
+        
+        # Get or create default panel and contact types
+        default_panel = db.query(Panel).first()
+        if not default_panel:
+            default_panel = Panel(name="Import Panel", description="Auto-created during CSV import")
+            db.add(default_panel)
+            db.commit()
+            db.refresh(default_panel)
+        
+        # Create contact type mapping
+        contact_type_mapping = {}
+        for contact_type in ['WhatsApp', 'Telegram', 'Messanger']:
+            ct = db.query(ContactType).filter(ContactType.name == contact_type).first()
+            if not ct:
+                ct = ContactType(name=contact_type, description=f"Auto-created for {contact_type}")
+                db.add(ct)
+                db.commit()
+                db.refresh(ct)
+            contact_type_mapping[contact_type] = ct.id
+        
+        for row_num, row in enumerate(csv_reader, start=2):
+            try:
+                # Parse telegram ID from contact data if it's a telegram username
+                telegram_id = None
+                contact_value = row.get('Dane Kontaktowe', '').strip()
+                contact_type = row.get('Typ Kontaktu', '').strip()
+                
+                # Extract telegram ID from username (if it starts with @)
+                if contact_type == 'Telegram' and contact_value.startswith('@'):
+                    # For now, we'll store the username in contact_value
+                    # In a real implementation, you'd need to resolve @username to telegram_id
+                    pass
+                
+                # Parse expiration date
+                expires_date = None
+                date_str = row.get('Data wygaśnięcia', '').strip()
+                if date_str:
+                    try:
+                        expires_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                    except ValueError:
+                        pass
+                
+                # Get contact type ID
+                contact_type_id = contact_type_mapping.get(contact_type) if contact_type else None
+                
+                # Create client
+                client = Client(
+                    name=row.get('Nazwa', '').strip(),
+                    login=row.get('Login', '').strip(),
+                    password=row.get('Hasło', '').strip(),
+                    expires_date=expires_date,
+                    panel_id=default_panel.id,
+                    mac=row.get('MAC', '').strip(),
+                    key_value=row.get('Klucz', '').strip(),
+                    contact_type_id=contact_type_id,
+                    contact_value=contact_value,
+                    telegram_id=telegram_id,
+                    line_id=row.get('Line ID', '').strip(),
+                    status=row.get('Status', 'active').strip(),
+                    notes=f"Imported from CSV. Original ID: {row.get('ID', '')}"
+                )
+                
+                db.add(client)
+                imported_count += 1
+                
+                # Commit every 100 records to avoid memory issues
+                if imported_count % 100 == 0:
+                    db.commit()
+                    
+            except Exception as e:
+                errors.append(f"Wiersz {row_num}: {str(e)}")
+                continue
+        
+        # Final commit
+        db.commit()
+        
+        result = {
+            "imported_count": imported_count,
+            "total_processed": row_num - 1,
+            "errors": errors[:10]  # Limit to first 10 errors
+        }
+        
+        if errors:
+            result["message"] = f"Zaimportowano {imported_count} klientów z {len(errors)} błędami"
+        else:
+            result["message"] = f"Pomyślnie zaimportowano {imported_count} klientów"
+            
+        return result
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Błąd importu CSV: {str(e)}")
+    finally:
+        await file.close()
+
 # JSON Import/Export
 @api_router.post("/import-json/{table_name}")
 async def import_json_data(
