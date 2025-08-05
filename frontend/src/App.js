@@ -915,11 +915,200 @@ const MainApp = () => {
       case 'dashboard':
         return <Dashboard setActiveView={setActiveView} />;
       
+      case 'clients':
+        return <ClientsList />;
+      
+      case 'add-client':
+        return <AddClient />;
+      
+      case 'panels':
+        return (
+          <EditableTable
+            title="Panele IPTV"
+            endpoint="/panels"
+            icon="📺"
+            fields={[
+              { key: 'name', label: 'Nazwa', type: 'text', required: true },
+              { key: 'url', label: 'URL', type: 'text' },
+              { key: 'description', label: 'Opis', type: 'textarea' }
+            ]}
+          />
+        );
+      
+      case 'apps':
+        return (
+          <EditableTable
+            title="Android Applications"
+            endpoint="/apps"
+            icon="📱"
+            fields={[
+              { key: 'name', label: 'Nazwa', type: 'text', required: true },
+              { key: 'url', label: 'URL', type: 'text' },
+              { key: 'package_name', label: 'Nazwa pakietu', type: 'text' },
+              { key: 'app_code', label: 'Kod aplikacji', type: 'textarea' },
+              { key: 'description', label: 'Opis', type: 'textarea' }
+            ]}
+            canAdd={true}
+          />
+        );
+      
+      case 'smart-tv-activations':
+        return (
+          <EditableTable
+            title="Aktywacja Smart TV"
+            endpoint="/smart-tv-activations"
+            icon="📺"
+            fields={[
+              { key: 'app_name', label: 'Nazwa aplikacji', type: 'text', required: true },
+              { key: 'activation_price', label: 'Cena za aktywację', type: 'number', required: true },
+              { key: 'currency', label: 'Waluta', type: 'select', required: true, options: [
+                { value: 'PLN', label: 'PLN - Polski Złoty' },
+                { value: 'EUR', label: 'EUR - Euro' },
+                { value: 'USD', label: 'USD - Dolar amerykański' },
+                { value: 'GBP', label: 'GBP - Funt brytyjski' },
+                { value: 'CZK', label: 'CZK - Korona czeska' }
+              ]},
+              { key: 'description', label: 'Opis aktywacji', type: 'textarea' },
+              { key: 'is_active', label: 'Aktywna', type: 'checkbox' }
+            ]}
+          />
+        );
+      
+      case 'contact-types':
+        return (
+          <EditableTable
+            title="Typy Kontaktów"
+            endpoint="/contact-types"
+            icon="📞"
+            fields={[
+              { key: 'name', label: 'Nazwa', type: 'text', required: true },
+              { key: 'url_pattern', label: 'Wzorzec URL', type: 'text' },
+              { key: 'description', label: 'Opis', type: 'textarea' }
+            ]}
+          />
+        );
+      
+      case 'payment-methods':
+        return (
+          <EditableTable
+            title="Metody Płatności"
+            endpoint="/payment-methods"
+            icon="💳"
+            fields={[
+              { key: 'method_id', label: 'ID Metody', type: 'text', required: true },
+              { key: 'name', label: 'Nazwa', type: 'text', required: true },
+              { key: 'description', label: 'Opis', type: 'textarea' },
+              { key: 'is_active', label: 'Aktywna', type: 'checkbox' },
+              { key: 'fee_percentage', label: 'Opłata (%)', type: 'number' },
+              { key: 'min_amount', label: 'Min. kwota', type: 'number' },
+              { key: 'max_amount', label: 'Max. kwota', type: 'number' },
+              { key: 'instructions', label: 'Instrukcje', type: 'textarea' }
+            ]}
+          />
+        );
+      
+      case 'pricing-config':
+        return (
+          <EditableTable
+            title="Konfiguracja Cennika"
+            endpoint="/pricing-config"
+            icon="💰"
+            fields={[
+              { key: 'service_type', label: 'Typ usługi', type: 'text', required: true },
+              { key: 'price', label: 'Cena', type: 'number', required: true },
+              { key: 'currency', label: 'Waluta', type: 'text' },
+              { key: 'duration_days', label: 'Czas trwania (dni)', type: 'number', required: true },
+              { key: 'is_active', label: 'Aktywna', type: 'checkbox' },
+              { key: 'discount_percentage', label: 'Rabat (%)', type: 'number' },
+              { key: 'description', label: 'Opis', type: 'textarea' }
+            ]}
+          />
+        );
+      
+      case 'questions':
+        return (
+          <EditableTable
+            title="Pytania FAQ"
+            endpoint="/questions"
+            icon="❓"
+            fields={[
+              { key: 'question', label: 'Pytanie', type: 'textarea', required: true },
+              { key: 'answer', label: 'Odpowiedź', type: 'textarea', required: true },
+              { key: 'category', label: 'Kategoria', type: 'text' },
+              { key: 'is_active', label: 'Aktywne', type: 'checkbox' },
+              { key: 'display_order', label: 'Kolejność', type: 'number' }
+            ]}
+          />
+        );
+      
+      case 'smart-tv-apps':
+        return (
+          <EditableTable
+            title="Smart TV Apps"
+            endpoint="/smart-tv-apps"
+            icon="📺"
+            fields={[
+              { key: 'name', label: 'Nazwa', type: 'text', required: true },
+              { key: 'platform', label: 'Platforma', type: 'text' },
+              { key: 'download_url', label: 'URL pobierania', type: 'text' },
+              { key: 'instructions', label: 'Instrukcje', type: 'textarea' },
+              { key: 'version', label: 'Wersja', type: 'text' },
+              { key: 'is_active', label: 'Aktywna', type: 'checkbox' }
+            ]}
+            canAdd={true}
+          />
+        );
+      
+      case 'android-apps':
+        return (
+          <EditableTable
+            title="Android Apps"
+            endpoint="/android-apps"
+            icon="🤖"
+            fields={[
+              { key: 'name', label: 'Nazwa', type: 'text', required: true },
+              { key: 'package_name', label: 'Nazwa pakietu', type: 'text' },
+              { key: 'download_url', label: 'URL pobierania', type: 'text' },
+              { key: 'play_store_url', label: 'URL Play Store', type: 'text' },
+              { key: 'instructions', label: 'Instrukcje', type: 'textarea' },
+              { key: 'version', label: 'Wersja', type: 'text' },
+              { key: 'is_active', label: 'Aktywna', type: 'checkbox' },
+              { key: 'minimum_android_version', label: 'Min. Android', type: 'text' },
+              { key: 'file_size', label: 'Rozmiar pliku', type: 'text' }
+            ]}
+            canAdd={true}
+          />
+        );
+
       case 'telegram-bot':
         return <TelegramBot />;
       
+      case 'settings':
+        return (
+          <div className="settings">
+            <h1>⚙️ Ustawienia systemu</h1>
+            <div className="settings-grid">
+              <div className="setting-section interactive" onClick={() => alert('🛢️ Baza danych: SQLite z pełnym wsparciem relacji SQL. Można migrować do MySQL/PostgreSQL.')}>
+                <h3>🛢️ Baza danych SQL</h3>
+                <p>System działa na SQLite z pełnym wsparciem relacji</p>
+                <small>Kliknij aby zobaczyć szczegóły</small>
+              </div>
+              <div className="setting-section interactive" onClick={() => window.open(`${API}/export-csv/clients`, '_blank')}>
+                <h3>📊 Export Klientów</h3>
+                <p>Eksportuj wszystkich klientów do pliku CSV</p>
+                <small>Kliknij aby pobrać</small>
+              </div>
+              <div className="setting-section interactive" onClick={() => window.open(`${API}/export-csv/panels`, '_blank')}>
+                <h3>📺 Export Paneli</h3>
+                <p>Eksportuj wszystkie panele do pliku CSV</p>
+                <small>Kliknij aby pobrać</small>
+              </div>
+            </div>
+          </div>
+        );
+      
       default:
-        return <div className="loading">Sekcja w budowie...</div>;
+        return <Dashboard setActiveView={setActiveView} />;
     }
   };
 
