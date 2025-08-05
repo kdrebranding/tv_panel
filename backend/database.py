@@ -329,6 +329,18 @@ class AndroidApp(Base):
     created_at = Column(DateTime, default=func.current_timestamp())
     updated_at = Column(DateTime, default=func.current_timestamp(), onupdate=func.current_timestamp())
 
+class SmartTVActivation(Base):
+    __tablename__ = "smart_tv_activations"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    app_name = Column(String(255), nullable=False)  # Nazwa aplikacji
+    activation_price = Column(DECIMAL(10, 2), nullable=False)  # Cena za aktywację
+    currency = Column(String(10), default='PLN')  # Waluta (PLN, EUR, USD)
+    description = Column(Text)  # Opis aktywacji
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=func.current_timestamp())
+    updated_at = Column(DateTime, default=func.current_timestamp(), onupdate=func.current_timestamp())
+
 class ActivationRequest(Base):
     __tablename__ = "activation_requests"
     
