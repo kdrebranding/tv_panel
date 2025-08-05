@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Database configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://root:password@localhost/tv_panel")
+DATABASE_URL = os.getenv("DATABASE_URL", f"mysql+pymysql://{os.getenv('DB_USER', 'root')}:{os.getenv('DB_PASSWORD', 'password')}@{os.getenv('DB_HOST', 'localhost')}/{os.getenv('DB_DATABASE', 'tv_panel')}")
 
 # SQLAlchemy setup
 engine = create_engine(DATABASE_URL, echo=False)
