@@ -616,9 +616,8 @@ def main():
     except:
         pass
     
-    # Use the external URL from frontend .env for testing
-    if not backend_url:
-        backend_url = "http://localhost:8001"
+    # Use localhost for testing since external URL may not be accessible in container
+    backend_url = "http://localhost:8001"
     
     print(f"🔗 Using backend URL: {backend_url}")
     
