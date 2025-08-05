@@ -107,6 +107,7 @@ const Sidebar = ({ activeView, setActiveView, setAuth }) => {
     { key: 'questions', label: '❓ FAQ', icon: '❓' },
     { key: 'smart-tv-apps', label: '📺 Smart TV Apps', icon: '📺' },
     { key: 'android-apps', label: '🤖 Android Apps', icon: '🤖' },
+    { key: 'telegram-bot', label: '🤖 Bot Telegram', icon: '🤖' },
     { key: 'settings', label: '⚙️ Ustawienia', icon: '⚙️' },
   ];
 
