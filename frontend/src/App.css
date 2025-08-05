@@ -380,6 +380,27 @@ body {
   cursor: pointer;
 }
 
+.data-card.clickable {
+  cursor: pointer;
+  position: relative;
+}
+
+.data-card.clickable::after {
+  content: '→';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.2rem;
+  color: #4db6ac;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.data-card.clickable:hover::after {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
 .data-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(77, 182, 172, 0.2);
