@@ -6,9 +6,6 @@ import './App.css';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-// ============ CONTEXT ============
-const AuthContext = React.createContext();
-
 // ============ COMPONENTS ============
 
 // Login Component
@@ -45,8 +42,8 @@ const Login = ({ setAuth }) => {
     <div className="login-container">
       <div className="login-form">
         <div className="logo-section">
-          <h1>📺 TV Panel</h1>
-          <p>System zarządzania klientami IPTV</p>
+          <h1>🛢️ TV Panel SQL</h1>
+          <p>System zarządzania klientami IPTV z SQL</p>
         </div>
         
         <form onSubmit={handleSubmit}>
@@ -99,14 +96,16 @@ const Login = ({ setAuth }) => {
 const Sidebar = ({ activeView, setActiveView, setAuth }) => {
   const menuItems = [
     { key: 'dashboard', label: '📊 Panel główny', icon: '📊' },
-    { key: 'clients', label: '👥 Lista Klientów', icon: '👥' },
+    { key: 'clients', label: '👥 Klienci', icon: '👥' },
     { key: 'add-client', label: '➕ Dodaj Klienta', icon: '➕' },
-    { key: 'reports', label: '📈 Raporty', icon: '📈' },
-    { key: 'telegram', label: '🤖 Bot Telegram', icon: '🤖' },
-    { key: 'backup', label: '💾 Kopie Zapasowe', icon: '💾' },
     { key: 'panels', label: '📺 Panele', icon: '📺' },
     { key: 'apps', label: '📱 Aplikacje', icon: '📱' },
-    { key: 'contact-types', label: '📞 Typy Kontaktów', icon: '📞' },
+    { key: 'contact-types', label: '📞 Kontakty', icon: '📞' },
+    { key: 'payment-methods', label: '💳 Płatności', icon: '💳' },
+    { key: 'pricing-config', label: '💰 Cennik', icon: '💰' },
+    { key: 'questions', label: '❓ FAQ', icon: '❓' },
+    { key: 'smart-tv-apps', label: '📺 Smart TV Apps', icon: '📺' },
+    { key: 'android-apps', label: '🤖 Android Apps', icon: '🤖' },
     { key: 'settings', label: '⚙️ Ustawienia', icon: '⚙️' },
   ];
 
@@ -118,8 +117,8 @@ const Sidebar = ({ activeView, setActiveView, setAuth }) => {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <h2>📺 TV Panel Pro</h2>
-        <div className="version">v2.0 Advanced</div>
+        <h2>🛢️ TV Panel SQL</h2>
+        <div className="version">v3.0 SQL Edition</div>
       </div>
       
       <nav className="sidebar-nav">
@@ -138,6 +137,7 @@ const Sidebar = ({ activeView, setActiveView, setAuth }) => {
       <div className="sidebar-footer">
         <div className="user-info">
           <span>👤 Administrator</span>
+          <small>🛢️ SQLite Database</small>
         </div>
         <button onClick={handleLogout} className="btn-logout">
           🚪 Wyloguj
@@ -150,47 +150,23 @@ const Sidebar = ({ activeView, setActiveView, setAuth }) => {
 // Enhanced Dashboard Component
 const Dashboard = () => {
   const [stats, setStats] = useState({});
-  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [charts, setCharts] = useState({});
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchStats = async () => {
       try {
         const token = localStorage.getItem('tv_panel_token');
-        const headers = { Authorization: `Bearer ${token}` };
-        
-        // Fetch basic stats and advanced analytics
-        const [statsRes, analyticsRes] = await Promise.all([
-          axios.get(`${API}/dashboard/stats`, { headers }),
-          axios.get(`${API}/reports/dashboard`, { headers })
-        ]);
-        
-        setStats(statsRes.data);
-        setAnalytics(analyticsRes.data);
-        
-        // Fetch charts
-        const chartTypes = ['revenue_trend', 'client_growth', 'panel_distribution'];
-        const chartsData = {};
-        
-        for (const chartType of chartTypes) {
-          try {
-            const chartRes = await axios.get(`${API}/reports/chart/${chartType}`, { headers });
-            chartsData[chartType] = chartRes.data.chart;
-          } catch (e) {
-            console.warn(`Could not load chart: ${chartType}`);
-          }
-        }
-        
-        setCharts(chartsData);
-        
+        const response = await axios.get(`${API}/dashboard/stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setStats(response.data);
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error('Error fetching stats:', error);
       }
       setLoading(false);
     };
 
-    fetchDashboardData();
+    fetchStats();
   }, []);
 
   if (loading) return <div className="loading">Ładowanie panelu głównego...</div>;
@@ -198,7 +174,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1>📊 Panel Główny</h1>
+        <h1>📊 Panel Główny SQL</h1>
         <div className="dashboard-controls">
           <button className="btn-refresh" onClick={() => window.location.reload()}>
             🔄 Odśwież
@@ -206,7 +182,6 @@ const Dashboard = () => {
         </div>
       </div>
       
-      {/* Basic Stats */}
       <div className="stats-grid">
         <div className="stat-card total">
           <div className="stat-number">{stats.total_clients || 0}</div>
@@ -233,273 +208,40 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Advanced Analytics */}
-      {analytics && (
-        <div className="analytics-section">
-          <div className="analytics-grid">
-            <div className="analytics-card">
-              <h3>📊 Wskaźniki Biznesowe</h3>
-              <div className="metrics">
-                <div className="metric">
-                  <span className="metric-label">Retencja:</span>
-                  <span className="metric-value">{analytics.retention_rate}%</span>
-                </div>
-                <div className="metric">
-                  <span className="metric-label">Churn:</span>
-                  <span className="metric-value">{analytics.churn_rate}%</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="analytics-card">
-              <h3>💰 Przychody (szacowane)</h3>
-              <div className="revenue-info">
-                {analytics.revenue_trend?.slice(-1)[0] && (
-                  <>
-                    <div className="revenue-amount">
-                      {analytics.revenue_trend.slice(-1)[0].revenue} PLN
-                    </div>
-                    <div className="revenue-period">Miesięczne</div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          {/* Charts Section */}
-          <div className="charts-section">
-            {charts.revenue_trend && (
-              <div className="chart-container">
-                <h3>📈 Trend Przychodów</h3>
-                <img src={charts.revenue_trend} alt="Revenue Trend" className="chart-image" />
-              </div>
-            )}
-            
-            {charts.client_growth && (
-              <div className="chart-container">
-                <h3>👥 Wzrost Klientów</h3>
-                <img src={charts.client_growth} alt="Client Growth" className="chart-image" />
-              </div>
-            )}
-            
-            {charts.panel_distribution && (
-              <div className="chart-container">
-                <h3>📺 Rozkład Paneli</h3>
-                <img src={charts.panel_distribution} alt="Panel Distribution" className="chart-image" />
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-      
       <div className="quick-actions">
-        <h2>🚀 Szybkie Akcje</h2>
+        <h2>🚀 Zarządzanie danymi JSON</h2>
         <div className="action-buttons">
-          <button className="btn-action" onClick={() => window.open(`${API}/reports/export?format=csv`, '_blank')}>
-            📊 Eksport CSV
+          <button className="btn-action" onClick={() => window.open(`${API}/export-csv/clients`, '_blank')}>
+            📊 Eksport CSV Klientów
           </button>
-          <button className="btn-action" onClick={() => alert('Funkcja w przygotowaniu')}>
-            📧 Wyślij przypomnienia
+          <button className="btn-action" onClick={() => window.open(`${API}/export-csv/panels`, '_blank')}>
+            📺 Eksport Paneli
           </button>
-          <button className="btn-action" onClick={() => alert('Funkcja w przygotowaniu')}>
-            📥 Import klientów
+          <button className="btn-action" onClick={() => alert('Import JSON: Użyj Upload w sekcjach zarządzania')}>
+            📥 Import JSON
           </button>
           <button className="btn-action">🔐 Generator haseł</button>
         </div>
       </div>
-    </div>
-  );
-};
 
-// Reports Component
-const Reports = () => {
-  const [reportData, setReportData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [selectedReport, setSelectedReport] = useState('dashboard');
-
-  const generateReport = async (reportType, format = 'json') => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('tv_panel_token');
-      
-      if (format === 'csv' || format === 'pdf') {
-        // For file downloads
-        const response = await fetch(`${API}/reports/export`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            report_type: reportType,
-            format: format
-          })
-        });
-        
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = `tv_panel_report.${format}`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-      } else {
-        // For JSON data
-        const response = await axios.get(`${API}/reports/${reportType}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setReportData(response.data);
-      }
-    } catch (error) {
-      console.error('Error generating report:', error);
-      alert('Błąd podczas generowania raportu');
-    }
-    setLoading(false);
-  };
-
-  return (
-    <div className="reports-section">
-      <div className="reports-header">
-        <h1>📈 Zaawansowane Raporty</h1>
-        <div className="report-controls">
-          <select 
-            value={selectedReport}
-            onChange={(e) => setSelectedReport(e.target.value)}
-            className="report-select"
-          >
-            <option value="dashboard">Panel główny</option>
-            <option value="monthly">Raport miesięczny</option>
-            <option value="analytics/retention">Analiza retencji</option>
-            <option value="analytics/revenue">Analiza przychodów</option>
-          </select>
-          
-          <button 
-            onClick={() => generateReport(selectedReport)} 
-            disabled={loading}
-            className="btn-generate"
-          >
-            {loading ? 'Generowanie...' : '📊 Generuj raport'}
-          </button>
-        </div>
-      </div>
-
-      <div className="export-buttons">
-        <button 
-          onClick={() => generateReport(selectedReport, 'csv')} 
-          className="btn-export"
-          disabled={loading}
-        >
-          📄 Eksport CSV
-        </button>
-        <button 
-          onClick={() => generateReport(selectedReport, 'pdf')} 
-          className="btn-export"
-          disabled={loading}
-        >
-          📑 Eksport PDF
-        </button>
-      </div>
-
-      {reportData && (
-        <div className="report-content">
-          <div className="report-summary">
-            <h3>📋 Podsumowanie raportu</h3>
-            <pre>{JSON.stringify(reportData, null, 2)}</pre>
+      <div className="json-data-overview">
+        <h2>📋 Przegląd danych JSON</h2>
+        <div className="data-grid">
+          <div className="data-card">
+            <h3>💳 Metody płatności</h3>
+            <p>Zarządzaj dostępnymi opcjami płatności</p>
           </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Telegram Bot Component
-const TelegramBot = () => {
-  const [botStatus, setBotStatus] = useState('disconnected');
-  const [botToken, setBotToken] = useState('');
-  const [adminIds, setAdminIds] = useState('');
-
-  return (
-    <div className="telegram-bot">
-      <div className="bot-header">
-        <h1>🤖 Bot Telegram</h1>
-        <div className={`status-indicator ${botStatus}`}>
-          <span className="status-dot"></span>
-          {botStatus === 'connected' ? 'Połączony' : 'Rozłączony'}
-        </div>
-      </div>
-
-      <div className="bot-config">
-        <h2>⚙️ Konfiguracja Bota</h2>
-        
-        <div className="form-group">
-          <label>Token Bota:</label>
-          <input
-            type="password"
-            value={botToken}
-            onChange={(e) => setBotToken(e.target.value)}
-            placeholder="123456789:ABCdefGHIjklMNOpqrSTUvwxYZ"
-          />
-          <small>Uzyskaj token od @BotFather na Telegramie</small>
-        </div>
-
-        <div className="form-group">
-          <label>ID Administratorów (rozdzielone przecinkami):</label>
-          <input
-            type="text"
-            value={adminIds}
-            onChange={(e) => setAdminIds(e.target.value)}
-            placeholder="12345678,87654321"
-          />
-          <small>ID użytkowników, którzy mogą używać bota</small>
-        </div>
-
-        <button className="btn-primary">💾 Zapisz konfigurację</button>
-      </div>
-
-      <div className="bot-features">
-        <h2>🔧 Funkcje Bota</h2>
-        <div className="features-grid">
-          <div className="feature-card">
-            <h3>🔔 Powiadomienia</h3>
-            <p>Automatyczne powiadomienia o wygasających licencjach</p>
-            <label className="switch">
-              <input type="checkbox" />
-              <span className="slider"></span>
-            </label>
+          <div className="data-card">
+            <h3>💰 Konfiguracja cennika</h3>
+            <p>Ustawiaj ceny i pakiety subskrypcji</p>
           </div>
-          
-          <div className="feature-card">
-            <h3>📊 Statystyki</h3>
-            <p>Codzienne raporty o stanie systemu</p>
-            <label className="switch">
-              <input type="checkbox" />
-              <span className="slider"></span>
-            </label>
+          <div className="data-card">
+            <h3>❓ Pytania FAQ</h3>
+            <p>Zarządzaj często zadawanymi pytaniami</p>
           </div>
-          
-          <div className="feature-card">
-            <h3>📧 Przypomnienia</h3>
-            <p>Wysyłanie przypomnień do klientów</p>
-            <label className="switch">
-              <input type="checkbox" />
-              <span className="slider"></span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div className="bot-logs">
-        <h2>📝 Logi Bota</h2>
-        <div className="log-container">
-          <div className="log-entry">
-            <span className="timestamp">2025-03-19 10:30:15</span>
-            <span className="message">Bot uruchomiony pomyślnie</span>
-          </div>
-          <div className="log-entry">
-            <span className="timestamp">2025-03-19 10:35:22</span>
-            <span className="message">Wysłano 3 powiadomienia o wygasających licencjach</span>
+          <div className="data-card">
+            <h3>📺 Aplikacje Smart TV</h3>
+            <p>Konfiguruj aplikacje dla Smart TV</p>
           </div>
         </div>
       </div>
@@ -507,290 +249,246 @@ const TelegramBot = () => {
   );
 };
 
-// Backup & Restore Component
-const BackupRestore = () => {
-  const [backups, setBackups] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [creating, setCreating] = useState(false);
-
-  const fetchBackups = async () => {
-    setLoading(true);
-    try {
-      // This would call a backup list API
-      // For now, simulate backup data
-      const mockBackups = [
-        {
-          filename: 'tv_panel_backup_20250319_120000.zip',
-          created_at: '2025-03-19T12:00:00Z',
-          total_documents: 156,
-          size_mb: 2.3
-        },
-        {
-          filename: 'tv_panel_backup_20250318_020000.zip',
-          created_at: '2025-03-18T02:00:00Z',
-          total_documents: 148,
-          size_mb: 2.1
-        }
-      ];
-      setBackups(mockBackups);
-    } catch (error) {
-      console.error('Error fetching backups:', error);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchBackups();
-  }, []);
-
-  const createBackup = async () => {
-    setCreating(true);
-    try {
-      // This would call backup creation API
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate
-      alert('✅ Kopia zapasowa utworzona pomyślnie!');
-      fetchBackups();
-    } catch (error) {
-      console.error('Error creating backup:', error);
-      alert('❌ Błąd podczas tworzenia kopii zapasowej');
-    }
-    setCreating(false);
-  };
-
-  return (
-    <div className="backup-restore">
-      <div className="backup-header">
-        <h1>💾 Kopie Zapasowe</h1>
-        <button 
-          onClick={createBackup} 
-          disabled={creating}
-          className="btn-primary"
-        >
-          {creating ? '⏳ Tworzenie...' : '📦 Utwórz kopię'}
-        </button>
-      </div>
-
-      <div className="backup-settings">
-        <h2>⚙️ Ustawienia automatyczne</h2>
-        <div className="settings-grid">
-          <div className="setting-item">
-            <label>
-              <input type="checkbox" defaultChecked />
-              Codzienne kopie zapasowe (02:00)
-            </label>
-          </div>
-          <div className="setting-item">
-            <label>
-              <input type="checkbox" defaultChecked />
-              Zachowuj kopie przez 30 dni
-            </label>
-          </div>
-          <div className="setting-item">
-            <label>
-              <input type="checkbox" />
-              Powiadomienia email o kopiach
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div className="backups-list">
-        <h2>📋 Lista kopii zapasowych</h2>
-        
-        {loading ? (
-          <div className="loading">Ładowanie kopii zapasowych...</div>
-        ) : (
-          <div className="backup-table">
-            {backups.map((backup, index) => (
-              <div key={index} className="backup-row">
-                <div className="backup-info">
-                  <div className="backup-name">📁 {backup.filename}</div>
-                  <div className="backup-meta">
-                    📅 {new Date(backup.created_at).toLocaleString('pl-PL')} | 
-                    📊 {backup.total_documents} dokumentów | 
-                    💾 {backup.size_mb} MB
-                  </div>
-                </div>
-                <div className="backup-actions">
-                  <button className="btn-download">⬇️ Pobierz</button>
-                  <button className="btn-restore">🔄 Przywróć</button>
-                  <button className="btn-delete">🗑️ Usuń</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Enhanced Clients List Component (same as before but with additional features)
-const ClientsList = () => {
-  const [clients, setClients] = useState([]);
+// Enhanced Editable Table Component
+const EditableTable = ({ title, endpoint, fields, icon, canAdd = true, canDelete = true }) => {
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [expiryFilter, setExpiryFilter] = useState('');
-  const [selectedClients, setSelectedClients] = useState([]);
+  const [editingItem, setEditingItem] = useState(null);
+  const [newItem, setNewItem] = useState({});
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const fetchClients = async () => {
+  const fetchItems = async () => {
     try {
       const token = localStorage.getItem('tv_panel_token');
-      const params = new URLSearchParams();
-      if (search) params.append('search', search);
-      if (expiryFilter) params.append('expiry_filter', expiryFilter);
-      
-      const response = await axios.get(`${API}/clients?${params}`, {
+      const response = await axios.get(`${API}${endpoint}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setClients(response.data);
+      setItems(response.data);
     } catch (error) {
-      console.error('Error fetching clients:', error);
+      console.error(`Error fetching ${endpoint}:`, error);
+      setMessage(`❌ Błąd ładowania danych: ${error.message}`);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchClients();
-  }, [search, expiryFilter]);
+    fetchItems();
+  }, [endpoint]);
 
-  const deleteClient = async (clientId) => {
-    if (!window.confirm('Czy na pewno chcesz usunąć tego klienta?')) return;
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('tv_panel_token');
+      await axios.post(`${API}${endpoint}`, newItem, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNewItem({});
+      setShowAddForm(false);
+      setMessage('✅ Dodano pomyślnie!');
+      fetchItems();
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      setMessage(`❌ Błąd dodawania: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  const handleUpdate = async (id, updatedData) => {
+    try {
+      const token = localStorage.getItem('tv_panel_token');
+      await axios.put(`${API}${endpoint}/${id}`, updatedData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setEditingItem(null);
+      setMessage('✅ Zaktualizowano pomyślnie!');
+      fetchItems();
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      setMessage(`❌ Błąd aktualizacji: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Czy na pewno chcesz usunąć ten element?')) return;
     
     try {
       const token = localStorage.getItem('tv_panel_token');
-      await axios.delete(`${API}/clients/${clientId}`, {
+      await axios.delete(`${API}${endpoint}/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchClients();
+      setMessage('✅ Usunięto pomyślnie!');
+      fetchItems();
+      setTimeout(() => setMessage(''), 3000);
     } catch (error) {
-      console.error('Error deleting client:', error);
+      setMessage(`❌ Błąd usuwania: ${error.response?.data?.detail || error.message}`);
     }
   };
 
-  const getStatusClass = (client) => {
-    if (client.days_left < 0) return 'status-expired';
-    if (client.days_left <= 7) return 'status-warning';
-    return 'status-active';
+  const renderField = (field, value, onChange, isEditing = false) => {
+    if (field.type === 'select') {
+      return (
+        <select
+          value={value || ''}
+          onChange={(e) => onChange(field.key, e.target.value)}
+          disabled={!isEditing}
+        >
+          <option value="">Wybierz...</option>
+          {field.options.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      );
+    }
+    
+    if (field.type === 'textarea') {
+      return (
+        <textarea
+          value={value || ''}
+          onChange={(e) => onChange(field.key, e.target.value)}
+          rows={3}
+          disabled={!isEditing}
+        />
+      );
+    }
+    
+    if (field.type === 'checkbox') {
+      return (
+        <input
+          type="checkbox"
+          checked={value || false}
+          onChange={(e) => onChange(field.key, e.target.checked)}
+          disabled={!isEditing}
+        />
+      );
+    }
+    
+    return (
+      <input
+        type={field.type || 'text'}
+        value={value || ''}
+        onChange={(e) => onChange(field.key, e.target.value)}
+        disabled={!isEditing}
+        step={field.type === 'number' ? '0.01' : undefined}
+      />
+    );
   };
 
-  const getStatusLabel = (client) => {
-    if (client.days_left < 0) return '❌ Wygasło';
-    if (client.days_left <= 7) return '⚠️ Wygasa wkrótce';
-    return '✅ Aktywny';
-  };
-
-  if (loading) return <div className="loading">Ładowanie klientów...</div>;
+  if (loading) return <div className="loading">Ładowanie {title.toLowerCase()}...</div>;
 
   return (
-    <div className="clients-list">
-      <div className="page-header">
-        <h1>👥 Lista Klientów</h1>
-        
-        <div className="filters">
-          <input
-            type="text"
-            placeholder="🔍 Szukaj po nazwie, loginie, MAC..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="search-input"
-          />
-          
-          <select
-            value={expiryFilter}
-            onChange={(e) => setExpiryFilter(e.target.value)}
-            className="filter-select"
-          >
-            <option value="">Wszystkie</option>
-            <option value="active">Aktywne</option>
-            <option value="expiring_soon">Wygasające wkrótce</option>
-            <option value="expired">Wygasłe</option>
-          </select>
-          
-          <button className="btn-primary">📥 Import CSV</button>
-          <button className="btn-secondary" onClick={() => window.open(`${API}/reports/export?format=csv`, '_blank')}>
-            📤 Eksport CSV
-          </button>
+    <div className="editable-table">
+      <div className="table-header">
+        <h1>{icon} {title}</h1>
+        <div className="table-controls">
+          {canAdd && (
+            <button 
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="btn-primary"
+            >
+              ➕ Dodaj nowy
+            </button>
+          )}
         </div>
       </div>
 
+      {message && (
+        <div className={`alert ${message.includes('✅') ? 'alert-success' : 'alert-error'}`}>
+          {message}
+        </div>
+      )}
+
+      {showAddForm && canAdd && (
+        <form onSubmit={handleCreate} className="add-form">
+          <h3>➕ Dodaj nowy element</h3>
+          <div className="form-grid">
+            {fields.map(field => (
+              <div key={field.key} className="form-group">
+                <label>{field.label}</label>
+                {renderField(field, newItem[field.key], (key, value) => 
+                  setNewItem({...newItem, [key]: value}), true
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="form-actions">
+            <button type="submit" className="btn-success">✅ Zapisz</button>
+            <button type="button" onClick={() => setShowAddForm(false)} className="btn-secondary">
+              ❌ Anuluj
+            </button>
+          </div>
+        </form>
+      )}
+
       <div className="table-container">
-        <table className="clients-table">
+        <table className="data-table">
           <thead>
             <tr>
-              <th>
-                <input 
-                  type="checkbox"
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedClients(clients.map(c => c.id));
-                    } else {
-                      setSelectedClients([]);
-                    }
-                  }}
-                />
-              </th>
               <th>ID</th>
-              <th>Nazwa</th>
-              <th>Status</th>
-              <th>Dni pozostałe</th>
-              <th>Panel</th>
-              <th>Login</th>
-              <th>Hasło</th>
-              <th>Aplikacja</th>
-              <th>MAC</th>
-              <th>Klucz</th>
-              <th>Kontakt</th>
+              {fields.map(field => (
+                <th key={field.key}>{field.label}</th>
+              ))}
               <th>Akcje</th>
             </tr>
           </thead>
           <tbody>
-            {clients.map(client => (
-              <tr key={client.id} className={getStatusClass(client)}>
-                <td>
-                  <input 
-                    type="checkbox"
-                    checked={selectedClients.includes(client.id)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedClients([...selectedClients, client.id]);
-                      } else {
-                        setSelectedClients(selectedClients.filter(id => id !== client.id));
-                      }
-                    }}
-                  />
-                </td>
-                <td>{client.id.slice(-6)}</td>
-                <td className="client-name">{client.name}</td>
-                <td>
-                  <span className={`status ${getStatusClass(client)}`}>
-                    {getStatusLabel(client)}
-                  </span>
-                </td>
-                <td>
-                  <span className={client.days_left <= 7 ? 'days-warning' : ''}>
-                    {client.days_left < 0 ? 'Wygasło' : `${client.days_left} dni`}
-                  </span>
-                </td>
-                <td>{client.panel_name || '-'}</td>
-                <td>{client.login || '-'}</td>
-                <td className="password-field">{client.password || '-'}</td>
-                <td>{client.app_name || '-'}</td>
-                <td className="mac-field">{client.mac || '-'}</td>
-                <td className="key-field">{client.key_value || '-'}</td>
-                <td>{client.contact_value || '-'}</td>
+            {items.map(item => (
+              <tr key={item.id} className={editingItem?.id === item.id ? 'editing' : ''}>
+                <td>{item.id}</td>
+                {fields.map(field => (
+                  <td key={field.key}>
+                    {editingItem?.id === item.id ? (
+                      renderField(field, editingItem[field.key], (key, value) =>
+                        setEditingItem({...editingItem, [key]: value}), true
+                      )
+                    ) : (
+                      <span className={`field-${field.type || 'text'}`}>
+                        {field.type === 'checkbox' ? (item[field.key] ? '✅' : '❌') : 
+                         item[field.key]?.toString() || '-'}
+                      </span>
+                    )}
+                  </td>
+                ))}
                 <td>
                   <div className="action-buttons">
-                    <button className="btn-edit" title="Edytuj">✏️</button>
-                    <button className="btn-message" title="Wyślij wiadomość">💬</button>
-                    <button className="btn-extend" title="Przedłuż licencję">⏱️</button>
-                    <button 
-                      className="btn-delete" 
-                      title="Usuń"
-                      onClick={() => deleteClient(client.id)}
-                    >
-                      🗑️
-                    </button>
+                    {editingItem?.id === item.id ? (
+                      <>
+                        <button 
+                          onClick={() => handleUpdate(item.id, editingItem)}
+                          className="btn-success"
+                          title="Zapisz"
+                        >
+                          ✅
+                        </button>
+                        <button 
+                          onClick={() => setEditingItem(null)}
+                          className="btn-secondary"
+                          title="Anuluj"
+                        >
+                          ❌
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button 
+                          onClick={() => setEditingItem(item)}
+                          className="btn-edit"
+                          title="Edytuj"
+                        >
+                          ✏️
+                        </button>
+                        {canDelete && (
+                          <button 
+                            onClick={() => handleDelete(item.id)}
+                            className="btn-delete"
+                            title="Usuń"
+                          >
+                            🗑️
+                          </button>
+                        )}
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -798,25 +496,37 @@ const ClientsList = () => {
           </tbody>
         </table>
       </div>
-
-      {selectedClients.length > 0 && (
-        <div className="bulk-actions">
-          <button className="btn-bulk-extend">
-            ⏱️ Przedłuż licencje ({selectedClients.length})
-          </button>
-          <button className="btn-bulk-message">
-            💬 Wyślij wiadomości ({selectedClients.length})
-          </button>
-          <button className="btn-bulk-delete">
-            🗑️ Usuń zaznaczone ({selectedClients.length})
-          </button>
-        </div>
-      )}
     </div>
   );
 };
 
-// Add Client Component (same as before)
+// Clients Component with full editing
+const ClientsList = () => {
+  return (
+    <EditableTable
+      title="Lista Klientów IPTV"
+      endpoint="/clients"
+      icon="👥"
+      fields={[
+        { key: 'line_id', label: 'ID Linii', type: 'text' },
+        { key: 'name', label: 'Nazwa', type: 'text', required: true },
+        { key: 'expires_date', label: 'Data wygaśnięcia', type: 'date' },
+        { key: 'login', label: 'Login', type: 'text' },
+        { key: 'password', label: 'Hasło', type: 'text' },
+        { key: 'mac', label: 'MAC', type: 'text' },
+        { key: 'contact_value', label: 'Kontakt', type: 'text' },
+        { key: 'status', label: 'Status', type: 'select', options: [
+          { value: 'active', label: 'Aktywny' },
+          { value: 'inactive', label: 'Nieaktywny' },
+          { value: 'suspended', label: 'Zawieszony' }
+        ]},
+        { key: 'notes', label: 'Notatki', type: 'textarea' }
+      ]}
+    />
+  );
+};
+
+// Add Client Form
 const AddClient = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -922,7 +632,6 @@ const AddClient = () => {
       
       <form onSubmit={handleSubmit} className="client-form">
         <div className="form-grid">
-          {/* Basic Information */}
           <div className="form-section">
             <h3>📋 Podstawowe informacje</h3>
             
@@ -960,7 +669,6 @@ const AddClient = () => {
             </div>
           </div>
 
-          {/* Access Data */}
           <div className="form-section">
             <h3>🔐 Dane dostępowe</h3>
             
@@ -1003,7 +711,6 @@ const AddClient = () => {
             </div>
           </div>
 
-          {/* Technical Data */}
           <div className="form-section">
             <h3>📱 Dane techniczne</h3>
             
@@ -1031,18 +738,8 @@ const AddClient = () => {
                 placeholder="12:34:56:78:90:AB"
               />
             </div>
-            
-            <div className="form-group">
-              <label>Klucz</label>
-              <input
-                type="text"
-                value={formData.key_value}
-                onChange={(e) => handleInputChange('key_value', e.target.value)}
-              />
-            </div>
           </div>
 
-          {/* Contact Info */}
           <div className="form-section">
             <h3>📞 Kontakt i notatki</h3>
             
@@ -1071,16 +768,6 @@ const AddClient = () => {
             </div>
             
             <div className="form-group">
-              <label>ID Telegrama</label>
-              <input
-                type="text"
-                value={formData.telegram_id}
-                onChange={(e) => handleInputChange('telegram_id', e.target.value)}
-                placeholder="Numeryczne ID użytkownika"
-              />
-            </div>
-            
-            <div className="form-group">
               <label>Notatki</label>
               <textarea
                 value={formData.notes}
@@ -1097,79 +784,6 @@ const AddClient = () => {
           </button>
         </div>
       </form>
-    </div>
-  );
-};
-
-// Simple management components (same as before)
-const SimpleManager = ({ title, endpoint, createEndpoint, fields, icon }) => {
-  const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState({});
-  const [loading, setLoading] = useState(true);
-
-  const fetchItems = async () => {
-    try {
-      const token = localStorage.getItem('tv_panel_token');
-      const response = await axios.get(`${API}${endpoint}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setItems(response.data);
-    } catch (error) {
-      console.error(`Error fetching ${endpoint}:`, error);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchItems();
-  }, [endpoint]);
-
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem('tv_panel_token');
-      await axios.post(`${API}${createEndpoint || endpoint}`, newItem, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setNewItem({});
-      fetchItems();
-    } catch (error) {
-      console.error(`Error creating item:`, error);
-    }
-  };
-
-  if (loading) return <div className="loading">Ładowanie...</div>;
-
-  return (
-    <div className="simple-manager">
-      <h1>{icon} {title}</h1>
-      
-      <form onSubmit={handleCreate} className="add-form">
-        <div className="form-row">
-          {fields.map(field => (
-            <input
-              key={field.key}
-              type={field.type || 'text'}
-              placeholder={field.label}
-              value={newItem[field.key] || ''}
-              onChange={(e) => setNewItem({...newItem, [field.key]: e.target.value})}
-              required={field.required}
-            />
-          ))}
-          <button type="submit" className="btn-primary">Dodaj</button>
-        </div>
-      </form>
-      
-      <div className="items-list">
-        {items.map(item => (
-          <div key={item.id} className="item-card">
-            <h3>{item.name}</h3>
-            {item.description && <p>{item.description}</p>}
-            {item.url && <p><strong>URL:</strong> {item.url}</p>}
-            {item.url_pattern && <p><strong>Wzorzec:</strong> {item.url_pattern}</p>}
-          </div>
-        ))}
-      </div>
     </div>
   );
 };
@@ -1194,66 +808,168 @@ const MainApp = () => {
     switch(activeView) {
       case 'dashboard':
         return <Dashboard />;
+      
       case 'clients':
         return <ClientsList />;
+      
       case 'add-client':
         return <AddClient />;
-      case 'reports':
-        return <Reports />;
-      case 'telegram':
-        return <TelegramBot />;
-      case 'backup':
-        return <BackupRestore />;
+      
       case 'panels':
-        return <SimpleManager 
-          title="Panele IPTV" 
-          endpoint="/panels" 
-          icon="📺"
-          fields={[
-            {key: 'name', label: 'Nazwa panelu', required: true},
-            {key: 'url', label: 'URL panelu'},
-            {key: 'description', label: 'Opis'}
-          ]}
-        />;
+        return (
+          <EditableTable
+            title="Panele IPTV"
+            endpoint="/panels"
+            icon="📺"
+            fields={[
+              { key: 'name', label: 'Nazwa', type: 'text', required: true },
+              { key: 'url', label: 'URL', type: 'url' },
+              { key: 'description', label: 'Opis', type: 'textarea' }
+            ]}
+          />
+        );
+      
       case 'apps':
-        return <SimpleManager 
-          title="Aplikacje IPTV" 
-          endpoint="/apps" 
-          icon="📱"
-          fields={[
-            {key: 'name', label: 'Nazwa aplikacji', required: true},
-            {key: 'description', label: 'Opis'}
-          ]}
-        />;
+        return (
+          <EditableTable
+            title="Aplikacje IPTV"
+            endpoint="/apps"
+            icon="📱"
+            fields={[
+              { key: 'name', label: 'Nazwa', type: 'text', required: true },
+              { key: 'url', label: 'URL', type: 'url' },
+              { key: 'description', label: 'Opis', type: 'textarea' }
+            ]}
+          />
+        );
+      
       case 'contact-types':
-        return <SimpleManager 
-          title="Typy Kontaktów" 
-          endpoint="/contact-types" 
-          icon="📞"
-          fields={[
-            {key: 'name', label: 'Nazwa typu kontaktu', required: true},
-            {key: 'url_pattern', label: 'Wzorzec URL (z {contact})', required: true},
-            {key: 'icon', label: 'Ikona'}
-          ]}
-        />;
+        return (
+          <EditableTable
+            title="Typy Kontaktów"
+            endpoint="/contact-types"
+            icon="📞"
+            fields={[
+              { key: 'name', label: 'Nazwa', type: 'text', required: true },
+              { key: 'url_pattern', label: 'Wzorzec URL', type: 'text' },
+              { key: 'description', label: 'Opis', type: 'textarea' }
+            ]}
+          />
+        );
+      
+      case 'payment-methods':
+        return (
+          <EditableTable
+            title="Metody Płatności"
+            endpoint="/payment-methods"
+            icon="💳"
+            fields={[
+              { key: 'method_id', label: 'ID Metody', type: 'text', required: true },
+              { key: 'name', label: 'Nazwa', type: 'text', required: true },
+              { key: 'description', label: 'Opis', type: 'textarea' },
+              { key: 'is_active', label: 'Aktywna', type: 'checkbox' },
+              { key: 'fee_percentage', label: 'Opłata (%)', type: 'number' },
+              { key: 'min_amount', label: 'Min. kwota', type: 'number' },
+              { key: 'max_amount', label: 'Max. kwota', type: 'number' },
+              { key: 'instructions', label: 'Instrukcje', type: 'textarea' },
+              { key: 'icon', label: 'Ikona', type: 'text' }
+            ]}
+          />
+        );
+      
+      case 'pricing-config':
+        return (
+          <EditableTable
+            title="Konfiguracja Cennika"
+            endpoint="/pricing-config"
+            icon="💰"
+            fields={[
+              { key: 'service_type', label: 'Typ usługi', type: 'text', required: true },
+              { key: 'price', label: 'Cena', type: 'number', required: true },
+              { key: 'currency', label: 'Waluta', type: 'text' },
+              { key: 'duration_days', label: 'Okres (dni)', type: 'number' },
+              { key: 'is_active', label: 'Aktywny', type: 'checkbox' },
+              { key: 'discount_percentage', label: 'Zniżka (%)', type: 'number' },
+              { key: 'description', label: 'Opis', type: 'textarea' },
+              { key: 'features', label: 'Funkcje (JSON)', type: 'textarea' }
+            ]}
+          />
+        );
+      
+      case 'questions':
+        return (
+          <EditableTable
+            title="Pytania FAQ"
+            endpoint="/questions"
+            icon="❓"
+            fields={[
+              { key: 'question', label: 'Pytanie', type: 'textarea', required: true },
+              { key: 'answer', label: 'Odpowiedź', type: 'textarea', required: true },
+              { key: 'category', label: 'Kategoria', type: 'text' },
+              { key: 'is_active', label: 'Aktywne', type: 'checkbox' }
+            ]}
+          />
+        );
+      
+      case 'smart-tv-apps':
+        return (
+          <EditableTable
+            title="Aplikacje Smart TV"
+            endpoint="/smart-tv-apps"
+            icon="📺"
+            fields={[
+              { key: 'name', label: 'Nazwa', type: 'text', required: true },
+              { key: 'platform', label: 'Platforma', type: 'text' },
+              { key: 'download_url', label: 'URL pobierania', type: 'url' },
+              { key: 'version', label: 'Wersja', type: 'text' },
+              { key: 'is_active', label: 'Aktywna', type: 'checkbox' },
+              { key: 'instructions', label: 'Instrukcje', type: 'textarea' },
+              { key: 'requirements', label: 'Wymagania', type: 'textarea' }
+            ]}
+            canAdd={false} // Read-only for now
+          />
+        );
+      
+      case 'android-apps':
+        return (
+          <EditableTable
+            title="Aplikacje Android"
+            endpoint="/android-apps"
+            icon="🤖"
+            fields={[
+              { key: 'name', label: 'Nazwa', type: 'text', required: true },
+              { key: 'package_name', label: 'Nazwa pakietu', type: 'text' },
+              { key: 'download_url', label: 'URL pobierania', type: 'url' },
+              { key: 'version', label: 'Wersja', type: 'text' },
+              { key: 'is_active', label: 'Aktywna', type: 'checkbox' },
+              { key: 'minimum_android_version', label: 'Min. Android', type: 'text' },
+              { key: 'file_size', label: 'Rozmiar pliku', type: 'text' }
+            ]}
+            canAdd={false} // Read-only for now
+          />
+        );
+      
       case 'settings':
-        return <div className="settings">
-          <h1>⚙️ Ustawienia</h1>
-          <div className="settings-grid">
-            <div className="setting-section">
-              <h3>🔧 Ustawienia systemowe</h3>
-              <p>Konfiguracja podstawowych parametrów systemu</p>
-            </div>
-            <div className="setting-section">
-              <h3>👤 Zarządzanie użytkownikami</h3>
-              <p>Dodawanie i edycja administratorów</p>
-            </div>
-            <div className="setting-section">
-              <h3>📧 Powiadomienia</h3>
-              <p>Konfiguracja emaili i SMS</p>
+        return (
+          <div className="settings">
+            <h1>⚙️ Ustawienia systemu</h1>
+            <div className="settings-grid">
+              <div className="setting-section">
+                <h3>🛢️ Baza danych SQL</h3>
+                <p>System działa na SQLite z pełnym wsparciem relacji</p>
+              </div>
+              <div className="setting-section">
+                <h3>📊 Import/Export</h3>
+                <p>Wszystkie dane można eksportować do CSV</p>
+              </div>
+              <div className="setting-section">
+                <h3>✏️ Edycja inline</h3>
+                <p>Wszystkie tabele obsługują edycję w miejscu</p>
+              </div>
             </div>
           </div>
-        </div>;
+        );
+      
       default:
         return <Dashboard />;
     }
