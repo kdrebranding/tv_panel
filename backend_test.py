@@ -448,9 +448,8 @@ def main():
     except:
         pass
     
-    # Use the environment URL if available, otherwise fallback to localhost
-    if not backend_url:
-        backend_url = "http://localhost:8001"
+    # Use localhost for testing since external URL may not be accessible in container
+    backend_url = "http://localhost:8001"
     
     print(f"🔗 Using backend URL: {backend_url}")
     
