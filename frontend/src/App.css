@@ -855,6 +855,125 @@ body {
   background: currentColor;
 }
 
+.config-section {
+  background: rgba(15, 15, 16, 0.8);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #333;
+  margin-bottom: 2rem;
+}
+
+.config-section h3 {
+  color: #4db6ac;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.config-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.config-item label {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.config-item input {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #333;
+  color: #e0e0e0;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.config-item input.bot-token {
+  letter-spacing: 1px;
+  font-family: monospace;
+}
+
+.bot-features {
+  display: grid;
+  gap: 1rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.feature-icon {
+  font-size: 1.5rem;
+  min-width: 40px;
+  text-align: center;
+}
+
+.feature-content h4 {
+  color: #4db6ac;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.feature-content p {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  border: 1px solid #333;
+}
+
+.status-label {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+}
+
+.status-value {
+  color: #e0e0e0;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.status-value.connected {
+  color: #68d391;
+}
+
+.bot-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
 .bot-config {
   background: rgba(15, 15, 16, 0.8);
   padding: 1.5rem;
