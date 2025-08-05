@@ -838,12 +838,14 @@ const MainApp = () => {
       case 'apps':
         return (
           <EditableTable
-            title="Aplikacje IPTV"
+            title="Aplikacje Android"
             endpoint="/apps"
             icon="📱"
             fields={[
               { key: 'name', label: 'Nazwa', type: 'text', required: true },
               { key: 'url', label: 'URL', type: 'url' },
+              { key: 'package_name', label: 'Nazwa pakietu', type: 'text' },
+              { key: 'app_code', label: 'Kod aplikacji', type: 'textarea' },
               { key: 'description', label: 'Opis', type: 'textarea' }
             ]}
           />
