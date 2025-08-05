@@ -149,6 +149,7 @@ const Sidebar = ({ activeView, setActiveView, setAuth }) => {
 const Dashboard = ({ setActiveView }) => {
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
+  const [showCSVImport, setShowCSVImport] = useState(false);
 
   const generatePassword = async () => {
     try {
@@ -166,22 +167,31 @@ const Dashboard = ({ setActiveView }) => {
     }
   };
 
+  const refreshStats = async () => {
+    try {
+      const token = localStorage.getItem('tv_panel_token');
+      const response = await axios.get(`${API}/dashboard/stats`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setStats(response.data);
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchStats = async () => {
-      try {
-        const token = localStorage.getItem('tv_panel_token');
-        const response = await axios.get(`${API}/dashboard/stats`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setStats(response.data);
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      }
+      await refreshStats();
       setLoading(false);
     };
 
     fetchStats();
   }, []);
+
+  const handleCSVImportSuccess = () => {
+    refreshStats(); // Refresh stats after successful import
+    setShowCSVImport(false);
+  };
 
   if (loading) return <div className="loading">Ładowanie panelu głównego...</div>;
 
@@ -190,7 +200,7 @@ const Dashboard = ({ setActiveView }) => {
       <div className="dashboard-header">
         <h1>📊 Panel Główny SQL</h1>
         <div className="dashboard-controls">
-          <button className="btn-refresh" onClick={() => window.location.reload()}>
+          <button className="btn-refresh" onClick={refreshStats}>
             🔄 Odśwież
           </button>
         </div>
@@ -225,6 +235,9 @@ const Dashboard = ({ setActiveView }) => {
       <div className="quick-actions">
         <h2>🚀 Zarządzanie danymi SQL</h2>
         <div className="action-buttons">
+          <button className="btn-action" onClick={() => setShowCSVImport(!showCSVImport)}>
+            📤 Import CSV Klientów
+          </button>
           <button className="btn-action" onClick={() => window.open(`${API}/export-csv/clients`, '_blank')}>
             📊 Eksport CSV Klientów
           </button>
@@ -237,6 +250,12 @@ const Dashboard = ({ setActiveView }) => {
           <button className="btn-action" onClick={generatePassword}>🔐 Generator haseł</button>
         </div>
       </div>
+
+      {showCSVImport && (
+        <div className="csv-import-section">
+          <CSVImport onSuccess={handleCSVImportSuccess} />
+        </div>
+      )}
 
       <div className="json-data-overview">
         <h2>📋 Zarządzanie sekcjami</h2>
