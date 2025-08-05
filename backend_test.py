@@ -546,6 +546,8 @@ class TVPanelAPITester:
         
         # Run all other tests
         test_methods = [
+            self.test_database_configuration,
+            self.test_environment_variables,
             self.test_authentication_register,
             self.test_dashboard_stats,
             self.test_clients_crud,
