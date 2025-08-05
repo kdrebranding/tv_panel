@@ -844,6 +844,28 @@ const MainApp = () => {
           />
         );
       
+      case 'smart-tv-activations':
+        return (
+          <EditableTable
+            title="Aktywacja Smart TV"
+            endpoint="/smart-tv-activations"
+            icon="📺"
+            fields={[
+              { key: 'app_name', label: 'Nazwa aplikacji', type: 'text', required: true },
+              { key: 'activation_price', label: 'Cena za aktywację', type: 'number', required: true },
+              { key: 'currency', label: 'Waluta', type: 'select', required: true, options: [
+                { value: 'PLN', label: 'PLN - Polski Złoty' },
+                { value: 'EUR', label: 'EUR - Euro' },
+                { value: 'USD', label: 'USD - Dolar amerykański' },
+                { value: 'GBP', label: 'GBP - Funt brytyjski' },
+                { value: 'CZK', label: 'CZK - Korona czeska' }
+              ]},
+              { key: 'description', label: 'Opis aktywacji', type: 'textarea' },
+              { key: 'is_active', label: 'Aktywna', type: 'checkbox' }
+            ]}
+          />
+        );
+      
       case 'contact-types':
         return (
           <EditableTable
