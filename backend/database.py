@@ -97,7 +97,7 @@ class Client(Base):
     key_value = Column(String(255))
     contact_type_id = Column(Integer, ForeignKey("contact_types.id"))
     contact_value = Column(String(255))
-    telegram_id = Column(BigInteger)
+    telegram_id = Column(BigInteger, index=True)  # Ważne dla bota!
     telegram_username_display = Column(String(255))
     notes = Column(Text)
     status = Column(Enum('active', 'inactive', 'suspended'), default='active')
