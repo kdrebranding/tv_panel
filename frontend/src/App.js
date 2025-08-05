@@ -1072,6 +1072,15 @@ const MainApp = () => {
       case 'clients':
         return <ClientsList />;
       
+      case 'clients-active':
+        return <ActiveClientsList />;
+        
+      case 'clients-expiring':
+        return <ExpiringClientsList />;
+        
+      case 'clients-expired':
+        return <ExpiredClientsList />;
+      
       case 'add-client':
         return <AddClient />;
       
