@@ -202,3 +202,5 @@ test_plan:
 agent_communication:
     - agent: "main"
       message: "Initial analysis complete. TV Panel application has been successfully migrated to SQL with comprehensive editing capabilities. All major components appear to be implemented. Ready to test backend functionality first, then frontend integration."
+    - agent: "testing"
+      message: "CRITICAL ISSUE DISCOVERED: The supervisor is running server.py (MongoDB-based) instead of sql_server.py (SQL-based). Test results show MongoDB system is partially working but has date/datetime conversion issues. Authentication, CRUD operations for panels/apps/contact-types work. Dashboard stats and client creation fail due to date handling. Need to switch to SQL server as intended."
