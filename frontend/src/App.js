@@ -149,9 +149,25 @@ const Sidebar = ({ activeView, setActiveView, setAuth }) => {
 };
 
 // Enhanced Dashboard Component
-const Dashboard = () => {
+const Dashboard = ({ setActiveView }) => {
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const generatePassword = async () => {
+    try {
+      const token = localStorage.getItem('tv_panel_token');
+      const response = await axios.post(`${API}/generate-password`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const password = response.data.password;
+      navigator.clipboard.writeText(password);
+      alert(`🔐 Wygenerowane hasło: ${password}\n\n✅ Hasło zostało skopiowane do schowka!`);
+    } catch (error) {
+      console.error('Error generating password:', error);
+      alert('❌ Błąd podczas generowania hasła');
+    }
+  };
 
   useEffect(() => {
     const fetchStats = async () => {
