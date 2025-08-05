@@ -216,6 +216,23 @@ class SmartTVAppCreate(BaseModel):
     icon: Optional[str] = None
     requirements: Optional[str] = None
 
+class SmartTVActivationResponse(BaseModel):
+    id: int
+    app_name: str
+    activation_price: float
+    currency: str
+    description: Optional[str] = None
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+class SmartTVActivationCreate(BaseModel):
+    app_name: str
+    activation_price: float
+    currency: str = 'PLN'
+    description: Optional[str] = None
+    is_active: bool = True
+
 class AndroidAppResponse(BaseModel):
     id: int
     name: str
