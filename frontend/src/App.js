@@ -618,6 +618,18 @@ const EditableTable = ({ title, endpoint, fields, icon, canAdd = true, canDelete
   };
 
   const renderField = (field, value, onChange, isEditing = false) => {
+    // Special handling for days_to_expiry - calculated field
+    if (field.key === 'days_to_expiry') {
+      return (
+        <span style={{ 
+          color: value < 0 ? '#fc8181' : value <= 7 ? '#f6ad55' : '#68d391',
+          fontWeight: 'bold'
+        }}>
+          {value < 0 ? `${Math.abs(value)} dni temu` : `${value} dni`}
+        </span>
+      );
+    }
+    
     if (field.type === 'select') {
       return (
         <select value={value || ''} onChange={(e) => onChange(e.target.value)} disabled={!isEditing}>
@@ -660,6 +672,22 @@ const EditableTable = ({ title, endpoint, fields, icon, canAdd = true, canDelete
       />
     );
   };
+
+  // Calculate days to expiry for display
+  const calculateDaysToExpiry = (expiryDate) => {
+    if (!expiryDate) return null;
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    const diffTime = expiry - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  // Enhance items with calculated fields
+  const enhancedItems = items.map(item => ({
+    ...item,
+    days_to_expiry: calculateDaysToExpiry(item.expires_date)
+  }));
 
   if (loading) return <div className="loading">Ładowanie {title.toLowerCase()}...</div>;
 
