@@ -719,8 +719,12 @@ const EditableTable = ({ title, endpoint, fields, icon, canAdd = true, canDelete
               {fields.map(field => (
                 <div key={field.key} className="form-group">
                   <label>{field.label} {field.required && '*'}</label>
-                  {renderField(field, newItem[field.key], (value) => 
-                    setNewItem({...newItem, [field.key]: value}), true
+                  {field.key === 'days_to_expiry' ? (
+                    <input type="text" value="Obliczane automatycznie" disabled />
+                  ) : (
+                    renderField(field, newItem[field.key], (value) => 
+                      setNewItem({...newItem, [field.key]: value}), true
+                    )
                   )}
                 </div>
               ))}
