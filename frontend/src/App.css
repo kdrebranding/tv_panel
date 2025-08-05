@@ -1166,13 +1166,23 @@ input:checked + .slider:before {
   transition: all 0.3s ease;
 }
 
+.setting-section.interactive {
+  cursor: pointer;
+}
+
 .setting-section:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-color: #4db6ac;
+}
+
+.setting-section.interactive:hover {
+  background: rgba(77, 182, 172, 0.1);
+  border-color: #4db6ac;
 }
 
 .setting-section h3 {
-  color: #61dafb;
+  color: #4db6ac;
   margin-bottom: 0.75rem;
   font-size: 1.1rem;
 }
@@ -1180,6 +1190,14 @@ input:checked + .slider:before {
 .setting-section p {
   color: #888;
   font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.setting-section small {
+  color: #4db6ac;
+  font-size: 0.8rem;
+  font-style: italic;
+  opacity: 0.8;
 }
 
 /* ============ RESPONSIVE UPDATES ============ */
