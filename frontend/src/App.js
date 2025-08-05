@@ -413,6 +413,477 @@ const TelegramBot = () => {
   );
 };
 
+// Enhanced Editable Table Component
+const EditableTable = ({ title, endpoint, fields, icon, canAdd = true, canDelete = true }) => {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingItem, setEditingItem] = useState(null);
+  const [newItem, setNewItem] = useState({});
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const fetchItems = async () => {
+    try {
+      const token = localStorage.getItem('tv_panel_token');
+      const response = await axios.get(`${API}${endpoint}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setItems(response.data);
+    } catch (error) {
+      console.error(`Error fetching ${endpoint}:`, error);
+      setMessage(`❌ Błąd ładowania danych: ${error.message}`);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, [endpoint]);
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('tv_panel_token');
+      await axios.post(`${API}${endpoint}`, newItem, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNewItem({});
+      setShowAddForm(false);
+      setMessage('✅ Dodano pomyślnie!');
+      fetchItems();
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      setMessage(`❌ Błąd dodawania: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  const handleUpdate = async (id, updatedData) => {
+    try {
+      const token = localStorage.getItem('tv_panel_token');
+      await axios.put(`${API}${endpoint}/${id}`, updatedData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setEditingItem(null);
+      setMessage('✅ Zaktualizowano pomyślnie!');
+      fetchItems();
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      setMessage(`❌ Błąd aktualizacji: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Czy na pewno chcesz usunąć ten element?')) return;
+    
+    try {
+      const token = localStorage.getItem('tv_panel_token');
+      await axios.delete(`${API}${endpoint}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setMessage('✅ Usunięto pomyślnie!');
+      fetchItems();
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      setMessage(`❌ Błąd usuwania: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  const renderField = (field, value, onChange, isEditing = false) => {
+    if (field.type === 'select') {
+      return (
+        <select value={value || ''} onChange={(e) => onChange(e.target.value)} disabled={!isEditing}>
+          <option value="">Wybierz...</option>
+          {field.options?.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      );
+    }
+    
+    if (field.type === 'textarea') {
+      return (
+        <textarea 
+          value={value || ''} 
+          onChange={(e) => onChange(e.target.value)}
+          disabled={!isEditing}
+          rows="2"
+        />
+      );
+    }
+    
+    if (field.type === 'checkbox') {
+      return (
+        <input 
+          type="checkbox" 
+          checked={value || false} 
+          onChange={(e) => onChange(e.target.checked)}
+          disabled={!isEditing}
+        />
+      );
+    }
+    
+    return (
+      <input 
+        type={field.type || 'text'} 
+        value={value || ''} 
+        onChange={(e) => onChange(e.target.value)}
+        disabled={!isEditing}
+      />
+    );
+  };
+
+  if (loading) return <div className="loading">Ładowanie {title.toLowerCase()}...</div>;
+
+  return (
+    <div className="editable-table">
+      <div className="table-header">
+        <h1>{icon} {title}</h1>
+        {canAdd && (
+          <button 
+            className="btn-primary" 
+            onClick={() => setShowAddForm(!showAddForm)}
+          >
+            ➕ Dodaj nowy
+          </button>
+        )}
+      </div>
+
+      {message && (
+        <div className={`alert ${message.includes('✅') ? 'alert-success' : 'alert-error'}`}>
+          {message}
+        </div>
+      )}
+
+      {showAddForm && (
+        <div className="add-form">
+          <h3>Dodaj nowy element</h3>
+          <form onSubmit={handleCreate}>
+            <div className="form-grid">
+              {fields.map(field => (
+                <div key={field.key} className="form-group">
+                  <label>{field.label} {field.required && '*'}</label>
+                  {renderField(field, newItem[field.key], (value) => 
+                    setNewItem({...newItem, [field.key]: value}), true
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="form-actions">
+              <button type="submit" className="btn-primary">Dodaj</button>
+              <button type="button" className="btn-secondary" onClick={() => setShowAddForm(false)}>
+                Anuluj
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="table-container">
+        <table className="data-table">
+          <thead>
+            <tr>
+              {fields.map(field => (
+                <th key={field.key}>{field.label}</th>
+              ))}
+              <th>Akcje</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map(item => (
+              <tr key={item.id}>
+                {fields.map(field => (
+                  <td key={field.key}>
+                    {editingItem === item.id ? 
+                      renderField(field, item[field.key], (value) => {
+                        const updatedItem = {...item, [field.key]: value};
+                        setItems(items.map(i => i.id === item.id ? updatedItem : i));
+                      }, true) :
+                      (field.type === 'checkbox' ? (item[field.key] ? '✅' : '❌') : (item[field.key] || '-'))
+                    }
+                  </td>
+                ))}
+                <td className="actions">
+                  {editingItem === item.id ? (
+                    <>
+                      <button 
+                        className="btn-save" 
+                        onClick={() => handleUpdate(item.id, item)}
+                      >
+                        💾
+                      </button>
+                      <button 
+                        className="btn-cancel" 
+                        onClick={() => setEditingItem(null)}
+                      >
+                        ❌
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button 
+                        className="btn-edit" 
+                        onClick={() => setEditingItem(item.id)}
+                      >
+                        ✏️
+                      </button>
+                      {canDelete && (
+                        <button 
+                          className="btn-delete" 
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          🗑️
+                        </button>
+                      )}
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+        {items.length === 0 && (
+          <div className="no-data">
+            <p>Brak danych do wyświetlenia</p>
+            {canAdd && (
+              <button className="btn-primary" onClick={() => setShowAddForm(true)}>
+                ➕ Dodaj pierwszy element
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Clients List Component
+const ClientsList = () => {
+  return (
+    <EditableTable
+      title="Lista Klientów IPTV"
+      endpoint="/clients"
+      icon="👥"
+      fields={[
+        { key: 'name', label: 'Nazwa', type: 'text', required: true },
+        { key: 'login', label: 'Login', type: 'text' },
+        { key: 'expires_date', label: 'Data wygaśnięcia', type: 'date' },
+        { key: 'telegram_id', label: 'Telegram ID', type: 'number' },
+        { key: 'contact_value', label: 'Kontakt', type: 'text' },
+        { key: 'status', label: 'Status', type: 'select', options: [
+          { value: 'active', label: 'Aktywny' },
+          { value: 'inactive', label: 'Nieaktywny' },
+          { value: 'suspended', label: 'Zawieszony' }
+        ]}
+      ]}
+    />
+  );
+};
+
+// Add Client Component
+const AddClient = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    subscription_period: 30,
+    panel_id: '',
+    login: '',
+    password: '',
+    app_id: '',
+    mac: '',
+    key_value: '',
+    contact_type_id: '',
+    contact_value: '',
+    telegram_id: '',
+    notes: '',
+    line_id: ''
+  });
+  const [panels, setPanels] = useState([]);
+  const [apps, setApps] = useState([]);
+  const [contactTypes, setContactTypes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('tv_panel_token');
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        const [panelsRes, appsRes, contactTypesRes] = await Promise.all([
+          axios.get(`${API}/panels`, { headers }),
+          axios.get(`${API}/apps`, { headers }),
+          axios.get(`${API}/contact-types`, { headers })
+        ]);
+        
+        setPanels(panelsRes.data);
+        setApps(appsRes.data);
+        setContactTypes(contactTypesRes.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const generatePassword = async () => {
+    try {
+      const response = await axios.get(`${API}/generate-password?length=8`);
+      setFormData({...formData, password: response.data.password});
+    } catch (error) {
+      console.error('Error generating password:', error);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const token = localStorage.getItem('tv_panel_token');
+      await axios.post(`${API}/clients`, formData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setMessage('✅ Klient został dodany pomyślnie!');
+      setFormData({
+        name: '',
+        subscription_period: 30,
+        panel_id: '',
+        login: '',
+        password: '',
+        app_id: '',
+        mac: '',
+        key_value: '',
+        contact_type_id: '',
+        contact_value: '',
+        telegram_id: '',
+        notes: '',
+        line_id: ''
+      });
+    } catch (error) {
+      setMessage('❌ Błąd podczas dodawania klienta: ' + (error.response?.data?.detail || 'Nieznany błąd'));
+    }
+    
+    setLoading(false);
+  };
+
+  return (
+    <div className="add-client">
+      <h1>➕ Dodaj Nowego Klienta</h1>
+      
+      {message && (
+        <div className={`alert ${message.includes('✅') ? 'alert-success' : 'alert-error'}`}>
+          {message}
+        </div>
+      )}
+      
+      <form onSubmit={handleSubmit} className="client-form">
+        <div className="form-section">
+          <h3>📋 Podstawowe informacje</h3>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Nazwa klienta *</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+                placeholder="Jan Kowalski"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Okres subskrypcji (dni)</label>
+              <input
+                type="number"
+                value={formData.subscription_period}
+                onChange={(e) => setFormData({...formData, subscription_period: parseInt(e.target.value)})}
+                min="1"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Telegram ID</label>
+              <input
+                type="number"
+                value={formData.telegram_id}
+                onChange={(e) => setFormData({...formData, telegram_id: e.target.value})}
+                placeholder="123456789"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="form-section">
+          <h3>🔐 Dane dostępowe</h3>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Login</label>
+              <input
+                type="text"
+                value={formData.login}
+                onChange={(e) => setFormData({...formData, login: e.target.value})}
+                placeholder="client_login"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Hasło</label>
+              <div className="password-input">
+                <input
+                  type="text"
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  placeholder="Wprowadź hasło lub wygeneruj"
+                />
+                <button type="button" onClick={generatePassword} className="btn-generate">
+                  🎲 Generuj
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="form-section">
+          <h3>📞 Kontakt</h3>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Typ kontaktu</label>
+              <select
+                value={formData.contact_type_id}
+                onChange={(e) => setFormData({...formData, contact_type_id: e.target.value})}
+              >
+                <option value="">Wybierz typ kontaktu</option>
+                {contactTypes.map(type => (
+                  <option key={type.id} value={type.id}>{type.name}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="form-group">
+              <label>Dane kontaktowe</label>
+              <input
+                type="text"
+                value={formData.contact_value}
+                onChange={(e) => setFormData({...formData, contact_value: e.target.value})}
+                placeholder="email@example.com lub +48123456789"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="form-actions">
+          <button type="submit" disabled={loading} className="btn-primary">
+            {loading ? 'Dodawanie...' : '✅ Dodaj klienta'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
 export default function App() {
   return (
     <Router>
