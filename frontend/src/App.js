@@ -252,7 +252,7 @@ const Dashboard = ({ setActiveView }) => {
             <h3>💰 Konfiguracja cennika</h3>
             <p>Ustawiaj ceny i pakiety subskrypcji</p>
           </div>
-          <div className="data-card clickable" onClick={() => setActiveView('faq')}>
+          <div className="data-card clickable" onClick={() => setActiveView('questions')}>
             <h3>❓ Pytania FAQ</h3>
             <p>Zarządzaj często zadawanymi pytaniami</p>
           </div>
