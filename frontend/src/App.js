@@ -1000,110 +1000,151 @@ const MainApp = () => {
           />
         );
       
-      case 'telegram-bot':
-        return (
-          <div className="telegram-bot">
-            <div className="bot-header">
-              <h1>🤖 Bot Telegram</h1>
-              <div className="status-indicator connected">
-                <span>🟢</span>
-                <span>Skonfigurowany</span>
+// Telegram Bot Component
+const TelegramBot = () => {
+  const [botStats, setBotStats] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchBotStats = async () => {
+      try {
+        const token = localStorage.getItem('tv_panel_token');
+        const response = await axios.get(`${API}/bot/stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setBotStats(response.data);
+      } catch (error) {
+        console.error('Error fetching bot stats:', error);
+        setError('Błąd pobierania danych bota');
+      }
+      setLoading(false);
+    };
+
+    fetchBotStats();
+  }, []);
+
+  if (loading) return <div className="loading">Ładowanie danych bota...</div>;
+  if (error) return <div className="error">❌ {error}</div>;
+
+  const botStatus = botStats.bot_configured && botStats.bot_active;
+  const maskedToken = botStats.telegram_token_present ? 
+    '7749306488:AAGYYY••••••••••••••••••••••••••••' : 'Nie skonfigurowany';
+
+  return (
+    <div className="telegram-bot">
+      <div className="bot-header">
+        <h1>🤖 Bot Telegram</h1>
+        <div className={`status-indicator ${botStatus ? 'connected' : 'disconnected'}`}>
+          <span>{botStatus ? '🟢' : '🔴'}</span>
+          <span>{botStatus ? 'Aktywny' : 'Nieaktywny'}</span>
+        </div>
+      </div>
+      
+      <div className="bot-config">
+        <div className="config-section">
+          <h3>📋 Konfiguracja</h3>
+          <div className="config-grid">
+            <div className="config-item">
+              <label>🔑 Token bota:</label>
+              <input type="text" value={maskedToken} disabled className="bot-token" />
+            </div>
+            <div className="config-item">
+              <label>👤 Admin ID:</label>
+              <input type="text" value={botStats.admin_id || 'Nie skonfigurowany'} disabled />
+            </div>
+            <div className="config-item">
+              <label>📱 WhatsApp Admin:</label>
+              <input type="text" value={botStats.whatsapp_admin || 'Nie skonfigurowany'} disabled />
+            </div>
+            <div className="config-item">
+              <label>⏰ Godzina przypomnień:</label>
+              <input type="text" value="20:00" disabled />
+            </div>
+          </div>
+        </div>
+        
+        <div className="config-section">
+          <h3>🎯 Funkcje bota</h3>
+          <div className="bot-features">
+            <div className="feature-item">
+              <span className="feature-icon">📤</span>
+              <div className="feature-content">
+                <h4>Powiadomienia o licencjach</h4>
+                <p>Powiadomienia dla {botStats.expiring_clients || 0} wygasających licencji</p>
               </div>
             </div>
-            
-            <div className="bot-config">
-              <div className="config-section">
-                <h3>📋 Konfiguracja</h3>
-                <div className="config-grid">
-                  <div className="config-item">
-                    <label>🔑 Token bota:</label>
-                    <input type="text" value="7749306488:AAGYYY..." disabled className="bot-token" />
-                  </div>
-                  <div className="config-item">
-                    <label>👤 Admin ID:</label>
-                    <input type="text" value="6852054255" disabled />
-                  </div>
-                  <div className="config-item">
-                    <label>📱 WhatsApp Admin:</label>
-                    <input type="text" value="447451221136" disabled />
-                  </div>
-                  <div className="config-item">
-                    <label>⏰ Godzina przypomnień:</label>
-                    <input type="text" value="20:00" disabled />
-                  </div>
-                </div>
+            <div className="feature-item">
+              <span className="feature-icon">🔐</span>
+              <div className="feature-content">
+                <h4>Autoryzacja klientów</h4>
+                <p>{botStats.clients_with_telegram || 0} klientów z Telegram ID</p>
               </div>
-              
-              <div className="config-section">
-                <h3>🎯 Funkcje bota</h3>
-                <div className="bot-features">
-                  <div className="feature-item">
-                    <span className="feature-icon">📤</span>
-                    <div className="feature-content">
-                      <h4>Powiadomienia o licencjach</h4>
-                      <p>Automatyczne powiadomienia o wygasających licencjach klientów</p>
-                    </div>
-                  </div>
-                  <div className="feature-item">
-                    <span className="feature-icon">🔐</span>
-                    <div className="feature-content">
-                      <h4>Autoryzacja klientów</h4>
-                      <p>Weryfikacja i autoryzacja klientów przez Telegram</p>
-                    </div>
-                  </div>
-                  <div className="feature-item">
-                    <span className="feature-icon">💰</span>
-                    <div className="feature-content">
-                      <h4>Zarządzanie płatnościami</h4>
-                      <p>Obsługa zamówień i płatności przez bota</p>
-                    </div>
-                  </div>
-                  <div className="feature-item">
-                    <span className="feature-icon">📱</span>
-                    <div className="feature-content">
-                      <h4>Aplikacje i aktywacja</h4>
-                      <p>Zarządzanie aplikacjami Android i Smart TV</p>
-                    </div>
-                  </div>
-                </div>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">💰</span>
+              <div className="feature-content">
+                <h4>Zarządzanie płatnościami</h4>
+                <p>Integracja z systemem płatności</p>
               </div>
-              
-              <div className="config-section">
-                <h3>📊 Status systemu</h3>
-                <div className="status-grid">
-                  <div className="status-item">
-                    <span className="status-label">Status bota:</span>
-                    <span className="status-value connected">🟢 Aktywny</span>
-                  </div>
-                  <div className="status-item">
-                    <span className="status-label">Ostatnia aktywność:</span>
-                    <span className="status-value">Dziś o 15:42</span>
-                  </div>
-                  <div className="status-item">
-                    <span className="status-label">Aktywni użytkownicy:</span>
-                    <span className="status-value">23</span>
-                  </div>
-                  <div className="status-item">
-                    <span className="status-label">Wysłane powiadomienia:</span>
-                    <span className="status-value">156 dzisiaj</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bot-actions">
-                <button className="btn-primary" onClick={() => alert('🤖 Bot jest aktywny i działa poprawnie!\n\nToken: ****8XWp0tMyh26qoBbBJ-h_uc4A\nAdmin ID: 6852054255\nPowiadomienia: Włączone')}>
-                  📊 Sprawdź status
-                </button>
-                <button className="btn-secondary" onClick={() => alert('📝 Logi bota:\n\n[15:42] Bot uruchomiony\n[15:41] Połączenie z bazą danych\n[15:40] Ładowanie konfiguracji\n[15:39] Start aplikacji')}>
-                  📋 Zobacz logi
-                </button>
-                <button className="btn-secondary" onClick={() => alert('🔄 Funkcja restartu będzie dostępna w przyszłej wersji.')}>
-                  🔄 Restart bota
-                </button>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">📱</span>
+              <div className="feature-content">
+                <h4>Aplikacje i aktywacja</h4>
+                <p>Zarządzanie aplikacjami Android i Smart TV</p>
               </div>
             </div>
           </div>
-        );
+        </div>
+        
+        <div className="config-section">
+          <h3>📊 Status systemu</h3>
+          <div className="status-grid">
+            <div className="status-item">
+              <span className="status-label">Status bota:</span>
+              <span className={`status-value ${botStatus ? 'connected' : ''}`}>
+                {botStatus ? '🟢 Aktywny' : '🔴 Nieaktywny'}
+              </span>
+            </div>
+            <div className="status-item">
+              <span className="status-label">Ostatnia aktywność:</span>
+              <span className="status-value">Dziś o {botStats.last_activity || '--:--'}</span>
+            </div>
+            <div className="status-item">
+              <span className="status-label">Klienci w bazie:</span>
+              <span className="status-value">{botStats.total_clients || 0}</span>
+            </div>
+            <div className="status-item">
+              <span className="status-label">Powiadomienia dzisiaj:</span>
+              <span className="status-value">{botStats.notifications_today || 0}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bot-actions">
+          <button className="btn-primary" onClick={() => {
+            const status = botStatus ? 'Aktywny' : 'Nieaktywny';
+            const token = botStats.telegram_token_present ? 'Skonfigurowany' : 'Brak';
+            const clients = botStats.total_clients || 0;
+            alert(`🤖 Status bota: ${status}\n\nToken: ${token}\nAdmin ID: ${botStats.admin_id || 'Brak'}\nKlienci w bazie: ${clients}\nKlienci z Telegram: ${botStats.clients_with_telegram || 0}`);
+          }}>
+            📊 Sprawdź status
+          </button>
+          <button className="btn-secondary" onClick={() => {
+            const logs = `📝 Rzeczywiste dane z bazy SQL:\n\n• Klienci ogółem: ${botStats.total_clients || 0}\n• Klienci z Telegram ID: ${botStats.clients_with_telegram || 0}\n• Dodano dzisiaj: ${botStats.clients_added_today || 0}\n• Wygasają wkrótce: ${botStats.expiring_clients || 0}\n• Token bota: ${botStats.telegram_token_present ? 'Skonfigurowany' : 'Brak'}\n• Admin ID: ${botStats.admin_id || 'Brak'}`;
+            alert(logs);
+          }}>
+            📋 Zobacz dane
+          </button>
+          <button className="btn-secondary" onClick={() => alert('🔄 Funkcja restartu będzie dostępna w przyszłej wersji.')}>
+            🔄 Restart bota
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
       
       case 'settings':
         return (
