@@ -71,12 +71,16 @@ class AppResponse(BaseModel):
     id: int
     name: str
     url: Optional[str] = None
+    package_name: Optional[str] = None
+    app_code: Optional[str] = None
     description: Optional[str] = None
     created_at: datetime
 
 class AppCreate(BaseModel):
     name: str
     url: Optional[str] = None
+    package_name: Optional[str] = None
+    app_code: Optional[str] = None
     description: Optional[str] = None
 
 class ContactTypeResponse(BaseModel):
