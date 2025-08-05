@@ -14,8 +14,13 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Database configuration
-DATABASE_URL = os.getenv("DATABASE_URL", f"mysql+pymysql://{os.getenv('DB_USER', 'root')}:{os.getenv('DB_PASSWORD', 'password')}@{os.getenv('DB_HOST', 'localhost')}/{os.getenv('DB_DATABASE', 'tv_panel')}")
+# Database configuration - Development (SQLite) vs Production (MySQL)
+if os.getenv("ENVIRONMENT", "development") == "production":
+    # Production MySQL configuration
+    DATABASE_URL = os.getenv("DATABASE_URL", f"mysql+pymysql://{os.getenv('DB_USER', 'root')}:{os.getenv('DB_PASSWORD', 'password')}@{os.getenv('DB_HOST', 'localhost')}/{os.getenv('DB_DATABASE', 'tv_panel')}")
+else:
+    # Development SQLite configuration
+    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./tv_panel.db")
 
 # SQLAlchemy setup
 engine = create_engine(DATABASE_URL, echo=False)
