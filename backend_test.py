@@ -331,37 +331,121 @@ class TVPanelAPITester:
             self.log_test("Password Generator", False, "Password generation request failed", str(e))
             return False
     
-    def test_settings_endpoints(self) -> bool:
-        """Test settings endpoints"""
+    def test_payment_methods_crud(self) -> bool:
+        """Test payment methods CRUD operations"""
         try:
             headers = self.get_auth_headers()
             
-            # Test GET settings
-            response = requests.get(f"{self.api_url}/settings", headers=headers, timeout=10)
+            # Test GET payment methods
+            response = requests.get(f"{self.api_url}/payment-methods", headers=headers, timeout=10)
             if response.status_code != 200:
-                self.log_test("Settings - GET", False, f"GET settings failed with status {response.status_code}", response.text)
+                self.log_test("Payment Methods CRUD - GET", False, f"GET payment methods failed with status {response.status_code}", response.text)
                 return False
             
-            settings_data = response.json()
-            self.log_test("Settings - GET", True, f"Retrieved settings: {len(settings_data)} items")
+            payment_methods_data = response.json()
+            self.log_test("Payment Methods CRUD - GET", True, f"Retrieved {len(payment_methods_data)} payment methods")
             
-            # Test PUT settings
-            test_settings = {
-                "default_expiry_days": 30,
-                "company_name": "TV Panel Test",
-                "test_setting": "automated_test_value"
+            # Test POST payment method (create)
+            new_payment_method_data = {
+                "method_id": f"test_method_{datetime.now().strftime('%H%M%S')}",
+                "name": f"Test Payment Method {datetime.now().strftime('%H%M%S')}",
+                "description": "Test payment method created by automated testing",
+                "is_active": True,
+                "fee_percentage": 2.5,
+                "min_amount": 10.0,
+                "instructions": "Test payment instructions"
             }
             
-            response = requests.put(f"{self.api_url}/settings", json=test_settings, headers=headers, timeout=10)
+            response = requests.post(f"{self.api_url}/payment-methods", json=new_payment_method_data, headers=headers, timeout=10)
             if response.status_code != 200:
-                self.log_test("Settings - PUT", False, f"PUT settings failed with status {response.status_code}", response.text)
+                self.log_test("Payment Methods CRUD - POST", False, f"POST payment method failed with status {response.status_code}", response.text)
                 return False
             
-            self.log_test("Settings - PUT", True, "Settings updated successfully")
+            created_payment_method = response.json()
+            payment_method_id = created_payment_method.get("id")
+            self.log_test("Payment Methods CRUD - POST", True, f"Created payment method with ID: {payment_method_id}")
+            
             return True
             
         except Exception as e:
-            self.log_test("Settings", False, "Settings operations failed", str(e))
+            self.log_test("Payment Methods CRUD", False, "Payment method CRUD operations failed", str(e))
+            return False
+    
+    def test_pricing_config_crud(self) -> bool:
+        """Test pricing config CRUD operations"""
+        try:
+            headers = self.get_auth_headers()
+            
+            # Test GET pricing config
+            response = requests.get(f"{self.api_url}/pricing-config", headers=headers, timeout=10)
+            if response.status_code != 200:
+                self.log_test("Pricing Config CRUD - GET", False, f"GET pricing config failed with status {response.status_code}", response.text)
+                return False
+            
+            pricing_config_data = response.json()
+            self.log_test("Pricing Config CRUD - GET", True, f"Retrieved {len(pricing_config_data)} pricing configs")
+            
+            # Test POST pricing config (create)
+            new_pricing_data = {
+                "service_type": f"test_service_{datetime.now().strftime('%H%M%S')}",
+                "price": 29.99,
+                "currency": "PLN",
+                "duration_days": 30,
+                "is_active": True,
+                "discount_percentage": 10.0,
+                "description": "Test pricing config created by automated testing"
+            }
+            
+            response = requests.post(f"{self.api_url}/pricing-config", json=new_pricing_data, headers=headers, timeout=10)
+            if response.status_code != 200:
+                self.log_test("Pricing Config CRUD - POST", False, f"POST pricing config failed with status {response.status_code}", response.text)
+                return False
+            
+            created_pricing = response.json()
+            pricing_id = created_pricing.get("id")
+            self.log_test("Pricing Config CRUD - POST", True, f"Created pricing config with ID: {pricing_id}")
+            
+            return True
+            
+        except Exception as e:
+            self.log_test("Pricing Config CRUD", False, "Pricing config CRUD operations failed", str(e))
+            return False
+    
+    def test_questions_crud(self) -> bool:
+        """Test questions/FAQ CRUD operations"""
+        try:
+            headers = self.get_auth_headers()
+            
+            # Test GET questions
+            response = requests.get(f"{self.api_url}/questions", headers=headers, timeout=10)
+            if response.status_code != 200:
+                self.log_test("Questions CRUD - GET", False, f"GET questions failed with status {response.status_code}", response.text)
+                return False
+            
+            questions_data = response.json()
+            self.log_test("Questions CRUD - GET", True, f"Retrieved {len(questions_data)} questions")
+            
+            # Test POST question (create)
+            new_question_data = {
+                "question": f"Test Question {datetime.now().strftime('%H%M%S')}?",
+                "answer": "This is a test answer created by automated testing.",
+                "category": "Testing",
+                "is_active": True
+            }
+            
+            response = requests.post(f"{self.api_url}/questions", json=new_question_data, headers=headers, timeout=10)
+            if response.status_code != 200:
+                self.log_test("Questions CRUD - POST", False, f"POST question failed with status {response.status_code}", response.text)
+                return False
+            
+            created_question = response.json()
+            question_id = created_question.get("id")
+            self.log_test("Questions CRUD - POST", True, f"Created question with ID: {question_id}")
+            
+            return True
+            
+        except Exception as e:
+            self.log_test("Questions CRUD", False, "Questions CRUD operations failed", str(e))
             return False
     
     def run_all_tests(self) -> Dict[str, Any]:
