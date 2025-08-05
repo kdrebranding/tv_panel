@@ -793,15 +793,15 @@ const ClientsList = ({ filter = 'all' }) => {
   
   switch(filter) {
     case 'active':
-      endpoint = '/clients?filter=active';
+      endpoint = '/clients?expiry_filter=active';
       title = '✅ Aktywni Klienci IPTV';
       break;
     case 'expiring':
-      endpoint = '/clients?filter=expiring';
+      endpoint = '/clients?expiry_filter=expiring_soon';  
       title = '⚠️ Klienci z Wygasającymi Licencjami';
       break;
     case 'expired':
-      endpoint = '/clients?filter=expired';
+      endpoint = '/clients?expiry_filter=expired';
       title = '❌ Klienci z Wygasłymi Licencjami';
       break;
     default:
