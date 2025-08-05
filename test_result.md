@@ -122,15 +122,18 @@ backend:
 
   - task: "SQL API Endpoints"
     implemented: true
-    working: true
+    working: false
     file: "sql_server.py" 
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: true
           agent: "main"
           comment: "FastAPI router with comprehensive CRUD operations for all data entities. Includes authentication, dashboard stats, and data export."
+        - working: false
+          agent: "testing"
+          comment: "SQL server exists but not running. Current MongoDB server (server.py) partially works: ✅ Auth (login/register), ✅ CRUD for panels/apps/contact-types, ✅ Password generation, ✅ Settings. ❌ Dashboard stats fail (date conversion), ❌ Client creation fails (date conversion). Need to switch to sql_server.py."
 
   - task: "JSON Data Import"
     implemented: true
