@@ -448,8 +448,8 @@ def main():
     except:
         pass
     
-    if not backend_url:
-        backend_url = "http://localhost:8001"
+    # Force use of localhost for testing since external URL may not be accessible
+    backend_url = "http://localhost:8001"
     
     print(f"🔗 Using backend URL: {backend_url}")
     
