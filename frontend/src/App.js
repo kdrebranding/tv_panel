@@ -945,7 +945,7 @@ const MainApp = () => {
               { key: 'minimum_android_version', label: 'Min. Android', type: 'text' },
               { key: 'file_size', label: 'Rozmiar pliku', type: 'text' }
             ]}
-            canAdd={false} // Read-only for now
+            canAdd={true} // Enable adding new Android apps
           />
         );
       
