@@ -954,17 +954,47 @@ const MainApp = () => {
           <div className="settings">
             <h1>⚙️ Ustawienia systemu</h1>
             <div className="settings-grid">
-              <div className="setting-section">
+              <div className="setting-section interactive" onClick={() => alert('🛢️ Baza danych: SQLite z pełnym wsparciem relacji SQL. Można migrować do MySQL/PostgreSQL.')}>
                 <h3>🛢️ Baza danych SQL</h3>
                 <p>System działa na SQLite z pełnym wsparciem relacji</p>
+                <small>Kliknij aby zobaczyć szczegóły</small>
               </div>
-              <div className="setting-section">
-                <h3>📊 Import/Export</h3>
-                <p>Wszystkie dane można eksportować do CSV</p>
+              <div className="setting-section interactive" onClick={() => window.open(`${API}/export-csv/clients`, '_blank')}>
+                <h3>📊 Export Klientów</h3>
+                <p>Eksportuj wszystkich klientów do pliku CSV</p>
+                <small>Kliknij aby pobrać</small>
               </div>
-              <div className="setting-section">
+              <div className="setting-section interactive" onClick={() => window.open(`${API}/export-csv/panels`, '_blank')}>
+                <h3>📺 Export Paneli</h3>
+                <p>Eksportuj wszystkie panele do pliku CSV</p>
+                <small>Kliknij aby pobrać</small>
+              </div>
+              <div className="setting-section interactive" onClick={() => alert('✏️ Edycja inline: Kliknij na dowolną komórkę w tabelach aby edytować dane bezpośrednio. Dostępne w sekcjach: Klienci, Panele, Aplikacje, Metody Płatności, Cennik, FAQ.')}>
                 <h3>✏️ Edycja inline</h3>
                 <p>Wszystkie tabele obsługują edycję w miejscu</p>
+                <small>Kliknij aby zobaczyć instrukcje</small>
+              </div>
+              <div className="setting-section interactive" onClick={() => {
+                const password = Math.random().toString(36).slice(-8);
+                navigator.clipboard.writeText(password);
+                alert(`🔐 Wygenerowano hasło: ${password}\n(Skopiowano do schowka)`);
+              }}>
+                <h3>🔐 Generator haseł</h3>
+                <p>Generuj bezpieczne hasła dla klientów</p>
+                <small>Kliknij aby wygenerować</small>
+              </div>
+              <div className="setting-section interactive" onClick={() => {
+                const stats = {
+                  database: 'SQLite',
+                  tables: '11 tabel',
+                  version: 'v3.0 SQL Edition',
+                  features: 'Inline editing, Export CSV, Auto-backup'
+                };
+                alert(`📋 Informacje o systemie:\n\nBaza danych: ${stats.database}\nTabele: ${stats.tables}\nWersja: ${stats.version}\nFunkcje: ${stats.features}`);
+              }}>
+                <h3>📋 Informacje o systemie</h3>
+                <p>Wyświetl szczegółowe informacje o systemie</p>
+                <small>Kliknij aby zobaczyć</small>
               </div>
             </div>
           </div>
