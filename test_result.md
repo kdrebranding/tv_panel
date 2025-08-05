@@ -107,15 +107,18 @@ user_problem_statement: "Complete the CSS updates for the new editing functional
 backend:
   - task: "SQL Database Connection"
     implemented: true
-    working: true
+    working: false
     file: "database.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: true
           agent: "main"
           comment: "SQLAlchemy models defined with all tables for TV Panel system. Using SQLite for development with full relational structure."
+        - working: false
+          agent: "testing"
+          comment: "CRITICAL: Wrong server running. Supervisor is running server.py (MongoDB) instead of sql_server.py (SQL). The SQL database models exist but are not being used. Need to switch supervisor config to use sql_server.py."
 
   - task: "SQL API Endpoints"
     implemented: true
