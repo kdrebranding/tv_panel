@@ -472,8 +472,10 @@ class TVPanelAPITester:
             self.test_panels_crud,
             self.test_apps_crud,
             self.test_contact_types_crud,
-            self.test_password_generator,
-            self.test_settings_endpoints
+            self.test_payment_methods_crud,
+            self.test_pricing_config_crud,
+            self.test_questions_crud,
+            self.test_password_generator
         ]
         
         for test_method in test_methods:
