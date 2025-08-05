@@ -7,6 +7,7 @@ Tests the FastAPI backend endpoints for the TV Panel IPTV management system.
 import requests
 import json
 import sys
+import os
 from datetime import datetime, date, timedelta
 from typing import Dict, Any, Optional
 
