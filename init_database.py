@@ -210,7 +210,7 @@ async def init_database():
         {
             "id": "client-3",
             "name": "Piotr Wiśniewski", 
-            "expires_date": today - timedelta(days=3),
+            "expires_date": datetime.combine(today - timedelta(days=3), datetime.min.time()),
             "panel_id": "panel-1",
             "login": "piotrw",
             "password": "oldpass789",
