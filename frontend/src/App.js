@@ -848,6 +848,7 @@ const ClientsList = ({ filter = 'all' }) => {
         { key: 'name', label: 'Nazwa', type: 'text', required: true },
         { key: 'login', label: 'Login', type: 'text' },
         { key: 'expires_date', label: 'Data wygaśnięcia', type: 'date' },
+        { key: 'days_to_expiry', label: 'Za ile dni wygasa', type: 'calculated', readonly: true },
         { key: 'telegram_id', label: 'Telegram ID', type: 'number' },
         { key: 'contact_value', label: 'Kontakt', type: 'text' },
         { key: 'status', label: 'Status', type: 'select', options: [
