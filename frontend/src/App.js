@@ -100,6 +100,7 @@ const Sidebar = ({ activeView, setActiveView, setAuth }) => {
     { key: 'add-client', label: '➕ Dodaj Klienta', icon: '➕' },
     { key: 'panels', label: '📺 Panele', icon: '📺' },
     { key: 'apps', label: '📱 Aplikacje', icon: '📱' },
+    { key: 'smart-tv-activations', label: '📺 Aktywacja Smart TV', icon: '📺' },
     { key: 'contact-types', label: '📞 Kontakty', icon: '📞' },
     { key: 'payment-methods', label: '💳 Płatności', icon: '💳' },
     { key: 'pricing-config', label: '💰 Cennik', icon: '💰' },
