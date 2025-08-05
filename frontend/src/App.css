@@ -974,6 +974,63 @@ body {
   flex-wrap: wrap;
 }
 
+/* ============ CSV IMPORT ============ */
+.csv-import-section {
+  background: rgba(26, 26, 27, 0.6);
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2rem 0;
+  border: 1px solid #333;
+}
+
+.csv-import h3 {
+  color: #4db6ac;
+  margin-bottom: 1.5rem;
+}
+
+.import-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.import-controls input[type="file"] {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #4db6ac;
+  color: #e0e0e0;
+  padding: 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.import-controls input[type="file"]:hover {
+  background: rgba(77, 182, 172, 0.1);
+}
+
+.file-info {
+  color: #4db6ac;
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  background: rgba(77, 182, 172, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(77, 182, 172, 0.2);
+}
+
+.csv-format-info {
+  color: #b0b0b0;
+  font-size: 0.8rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  border-left: 3px solid #4db6ac;
+}
+
+.csv-format-info strong {
+  color: #4db6ac;
+}
+
 .bot-config {
   background: rgba(15, 15, 16, 0.8);
   padding: 1.5rem;
