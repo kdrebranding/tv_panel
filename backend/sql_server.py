@@ -14,6 +14,7 @@ from datetime import datetime, date, timedelta
 import os
 import bcrypt
 import jwt
+from jwt import PyJWTError
 import logging
 import json
 import csv
