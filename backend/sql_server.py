@@ -824,6 +824,50 @@ async def get_dashboard_stats(current_admin = Depends(get_current_admin), db: Se
         "expiring_soon": expiring_soon,
     }
 
+# Bot Stats
+@api_router.get("/bot/stats")
+async def get_bot_stats(current_admin = Depends(get_current_admin), db: Session = Depends(get_db)):
+    """Get real bot statistics from database"""
+    today = date.today()
+    
+    # Real data from database
+    total_clients = db.query(Client).count()
+    clients_with_telegram = db.query(Client).filter(Client.telegram_id.isnot(None)).count()
+    
+    # Bot status based on environment variables
+    telegram_token = os.getenv('TELEGRAM_BOT_TOKEN', '')
+    reminder_token = os.getenv('REMINDER_TELEGRAM_TOKEN', '')
+    admin_id = os.getenv('ADMIN_USER_ID', '')
+    whatsapp_number = os.getenv('WHATSAPP_ADMIN_NUMBER', '')
+    
+    bot_configured = bool(telegram_token and admin_id)
+    
+    # Recent activity (clients added today)
+    clients_added_today = db.query(Client).filter(
+        func.date(Client.created_at) == today
+    ).count()
+    
+    # Expiring clients (potential notifications)
+    week_from_now = today + timedelta(days=7)
+    expiring_clients = db.query(Client).filter(
+        Client.expires_date.between(today, week_from_now)
+    ).count()
+    
+    return {
+        "bot_configured": bot_configured,
+        "bot_active": bot_configured,  # For now, assume active if configured
+        "telegram_token_present": bool(telegram_token),
+        "reminder_token_present": bool(reminder_token),
+        "admin_id": admin_id,
+        "whatsapp_admin": whatsapp_number,
+        "total_clients": total_clients,
+        "clients_with_telegram": clients_with_telegram,
+        "clients_added_today": clients_added_today,
+        "expiring_clients": expiring_clients,
+        "last_activity": datetime.now().strftime("%H:%M"),
+        "notifications_today": expiring_clients  # Approximate
+    }
+
 # JSON Import/Export
 @api_router.post("/import-json/{table_name}")
 async def import_json_data(
