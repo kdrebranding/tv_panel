@@ -786,12 +786,33 @@ const EditableTable = ({ title, endpoint, fields, icon, canAdd = true, canDelete
   );
 };
 
-// Clients List Component
-const ClientsList = () => {
+// Filtered Clients List Components
+const ClientsList = ({ filter = 'all' }) => {
+  let endpoint = '/clients';
+  let title = 'Lista Klientów IPTV';
+  
+  switch(filter) {
+    case 'active':
+      endpoint = '/clients?filter=active';
+      title = '✅ Aktywni Klienci IPTV';
+      break;
+    case 'expiring':
+      endpoint = '/clients?filter=expiring';
+      title = '⚠️ Klienci z Wygasającymi Licencjami';
+      break;
+    case 'expired':
+      endpoint = '/clients?filter=expired';
+      title = '❌ Klienci z Wygasłymi Licencjami';
+      break;
+    default:
+      endpoint = '/clients';
+      title = '👥 Wszyscy Klienci IPTV';
+  }
+
   return (
     <EditableTable
-      title="Lista Klientów IPTV"
-      endpoint="/clients"
+      title={title}
+      endpoint={endpoint}
       icon="👥"
       fields={[
         { key: 'name', label: 'Nazwa', type: 'text', required: true },
@@ -808,6 +829,10 @@ const ClientsList = () => {
     />
   );
 };
+
+const ActiveClientsList = () => <ClientsList filter="active" />;
+const ExpiringClientsList = () => <ClientsList filter="expiring" />;
+const ExpiredClientsList = () => <ClientsList filter="expired" />;
 
 // Add Client Component
 const AddClient = () => {
