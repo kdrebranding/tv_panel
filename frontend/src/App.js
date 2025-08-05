@@ -926,7 +926,7 @@ const MainApp = () => {
               { key: 'instructions', label: 'Instrukcje', type: 'textarea' },
               { key: 'requirements', label: 'Wymagania', type: 'textarea' }
             ]}
-            canAdd={false} // Read-only for now
+            canAdd={true} // Enable adding new Smart TV apps
           />
         );
       
