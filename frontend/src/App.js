@@ -261,6 +261,10 @@ const Dashboard = ({ setActiveView }) => {
             <h3>📺 Aplikacje Smart TV</h3>
             <p>Konfiguruj aplikacje dla Smart TV</p>
           </div>
+          <div className="data-card clickable" onClick={() => setActiveView('telegram-bot')}>
+            <h3>🤖 Bot Telegram</h3>
+            <p>Zarządzaj botem i powiadomieniami</p>
+          </div>
         </div>
       </div>
     </div>
