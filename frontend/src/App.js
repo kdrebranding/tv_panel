@@ -829,7 +829,7 @@ const MainApp = () => {
   const renderContent = () => {
     switch(activeView) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard setActiveView={setActiveView} />;
       
       case 'clients':
         return <ClientsList />;
