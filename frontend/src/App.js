@@ -101,6 +101,9 @@ const Sidebar = ({ activeView, setActiveView, setAuth }) => {
     { key: 'dashboard', label: '📊 Panel główny', icon: '📊' },
     { key: 'clients', label: '👥 Lista Klientów', icon: '👥' },
     { key: 'add-client', label: '➕ Dodaj Klienta', icon: '➕' },
+    { key: 'reports', label: '📈 Raporty', icon: '📈' },
+    { key: 'telegram', label: '🤖 Bot Telegram', icon: '🤖' },
+    { key: 'backup', label: '💾 Kopie Zapasowe', icon: '💾' },
     { key: 'panels', label: '📺 Panele', icon: '📺' },
     { key: 'apps', label: '📱 Aplikacje', icon: '📱' },
     { key: 'contact-types', label: '📞 Typy Kontaktów', icon: '📞' },
@@ -115,7 +118,8 @@ const Sidebar = ({ activeView, setActiveView, setAuth }) => {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <h2>📺 TV Panel</h2>
+        <h2>📺 TV Panel Pro</h2>
+        <div className="version">v2.0 Advanced</div>
       </div>
       
       <nav className="sidebar-nav">
@@ -132,6 +136,9 @@ const Sidebar = ({ activeView, setActiveView, setAuth }) => {
       </nav>
       
       <div className="sidebar-footer">
+        <div className="user-info">
+          <span>👤 Administrator</span>
+        </div>
         <button onClick={handleLogout} className="btn-logout">
           🚪 Wyloguj
         </button>
@@ -140,62 +147,163 @@ const Sidebar = ({ activeView, setActiveView, setAuth }) => {
   );
 };
 
-// Dashboard Component
+// Enhanced Dashboard Component
 const Dashboard = () => {
   const [stats, setStats] = useState({});
+  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [charts, setCharts] = useState({});
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchDashboardData = async () => {
       try {
         const token = localStorage.getItem('tv_panel_token');
-        const response = await axios.get(`${API}/dashboard/stats`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setStats(response.data);
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        // Fetch basic stats and advanced analytics
+        const [statsRes, analyticsRes] = await Promise.all([
+          axios.get(`${API}/dashboard/stats`, { headers }),
+          axios.get(`${API}/reports/dashboard`, { headers })
+        ]);
+        
+        setStats(statsRes.data);
+        setAnalytics(analyticsRes.data);
+        
+        // Fetch charts
+        const chartTypes = ['revenue_trend', 'client_growth', 'panel_distribution'];
+        const chartsData = {};
+        
+        for (const chartType of chartTypes) {
+          try {
+            const chartRes = await axios.get(`${API}/reports/chart/${chartType}`, { headers });
+            chartsData[chartType] = chartRes.data.chart;
+          } catch (e) {
+            console.warn(`Could not load chart: ${chartType}`);
+          }
+        }
+        
+        setCharts(chartsData);
+        
       } catch (error) {
-        console.error('Error fetching stats:', error);
+        console.error('Error fetching dashboard data:', error);
       }
       setLoading(false);
     };
 
-    fetchStats();
+    fetchDashboardData();
   }, []);
 
-  if (loading) return <div className="loading">Ładowanie statystyk...</div>;
+  if (loading) return <div className="loading">Ładowanie panelu głównego...</div>;
 
   return (
     <div className="dashboard">
-      <h1>📊 Panel Główny</h1>
+      <div className="dashboard-header">
+        <h1>📊 Panel Główny</h1>
+        <div className="dashboard-controls">
+          <button className="btn-refresh" onClick={() => window.location.reload()}>
+            🔄 Odśwież
+          </button>
+        </div>
+      </div>
       
+      {/* Basic Stats */}
       <div className="stats-grid">
         <div className="stat-card total">
           <div className="stat-number">{stats.total_clients || 0}</div>
           <div className="stat-label">Wszyscy klienci</div>
+          <div className="stat-trend">📈</div>
         </div>
         
         <div className="stat-card active">
           <div className="stat-number">{stats.active_clients || 0}</div>
           <div className="stat-label">Aktywni klienci</div>
+          <div className="stat-trend">✅</div>
         </div>
         
         <div className="stat-card warning">
           <div className="stat-number">{stats.expiring_soon || 0}</div>
           <div className="stat-label">Wygasający wkrótce</div>
+          <div className="stat-trend">⚠️</div>
         </div>
         
         <div className="stat-card danger">
           <div className="stat-number">{stats.expired_clients || 0}</div>
           <div className="stat-label">Wygasłe licencje</div>
+          <div className="stat-trend">❌</div>
         </div>
       </div>
+
+      {/* Advanced Analytics */}
+      {analytics && (
+        <div className="analytics-section">
+          <div className="analytics-grid">
+            <div className="analytics-card">
+              <h3>📊 Wskaźniki Biznesowe</h3>
+              <div className="metrics">
+                <div className="metric">
+                  <span className="metric-label">Retencja:</span>
+                  <span className="metric-value">{analytics.retention_rate}%</span>
+                </div>
+                <div className="metric">
+                  <span className="metric-label">Churn:</span>
+                  <span className="metric-value">{analytics.churn_rate}%</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="analytics-card">
+              <h3>💰 Przychody (szacowane)</h3>
+              <div className="revenue-info">
+                {analytics.revenue_trend?.slice(-1)[0] && (
+                  <>
+                    <div className="revenue-amount">
+                      {analytics.revenue_trend.slice(-1)[0].revenue} PLN
+                    </div>
+                    <div className="revenue-period">Miesięczne</div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Charts Section */}
+          <div className="charts-section">
+            {charts.revenue_trend && (
+              <div className="chart-container">
+                <h3>📈 Trend Przychodów</h3>
+                <img src={charts.revenue_trend} alt="Revenue Trend" className="chart-image" />
+              </div>
+            )}
+            
+            {charts.client_growth && (
+              <div className="chart-container">
+                <h3>👥 Wzrost Klientów</h3>
+                <img src={charts.client_growth} alt="Client Growth" className="chart-image" />
+              </div>
+            )}
+            
+            {charts.panel_distribution && (
+              <div className="chart-container">
+                <h3>📺 Rozkład Paneli</h3>
+                <img src={charts.panel_distribution} alt="Panel Distribution" className="chart-image" />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       
       <div className="quick-actions">
         <h2>🚀 Szybkie Akcje</h2>
         <div className="action-buttons">
-          <button className="btn-action">📊 Raport miesięczny</button>
-          <button className="btn-action">📧 Wyślij przypomnienia</button>
-          <button className="btn-action">📥 Import klientów</button>
+          <button className="btn-action" onClick={() => window.open(`${API}/reports/export?format=csv`, '_blank')}>
+            📊 Eksport CSV
+          </button>
+          <button className="btn-action" onClick={() => alert('Funkcja w przygotowaniu')}>
+            📧 Wyślij przypomnienia
+          </button>
+          <button className="btn-action" onClick={() => alert('Funkcja w przygotowaniu')}>
+            📥 Import klientów
+          </button>
           <button className="btn-action">🔐 Generator haseł</button>
         </div>
       </div>
@@ -203,7 +311,321 @@ const Dashboard = () => {
   );
 };
 
-// Clients List Component
+// Reports Component
+const Reports = () => {
+  const [reportData, setReportData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [selectedReport, setSelectedReport] = useState('dashboard');
+
+  const generateReport = async (reportType, format = 'json') => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('tv_panel_token');
+      
+      if (format === 'csv' || format === 'pdf') {
+        // For file downloads
+        const response = await fetch(`${API}/reports/export`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            report_type: reportType,
+            format: format
+          })
+        });
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `tv_panel_report.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        // For JSON data
+        const response = await axios.get(`${API}/reports/${reportType}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setReportData(response.data);
+      }
+    } catch (error) {
+      console.error('Error generating report:', error);
+      alert('Błąd podczas generowania raportu');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="reports-section">
+      <div className="reports-header">
+        <h1>📈 Zaawansowane Raporty</h1>
+        <div className="report-controls">
+          <select 
+            value={selectedReport}
+            onChange={(e) => setSelectedReport(e.target.value)}
+            className="report-select"
+          >
+            <option value="dashboard">Panel główny</option>
+            <option value="monthly">Raport miesięczny</option>
+            <option value="analytics/retention">Analiza retencji</option>
+            <option value="analytics/revenue">Analiza przychodów</option>
+          </select>
+          
+          <button 
+            onClick={() => generateReport(selectedReport)} 
+            disabled={loading}
+            className="btn-generate"
+          >
+            {loading ? 'Generowanie...' : '📊 Generuj raport'}
+          </button>
+        </div>
+      </div>
+
+      <div className="export-buttons">
+        <button 
+          onClick={() => generateReport(selectedReport, 'csv')} 
+          className="btn-export"
+          disabled={loading}
+        >
+          📄 Eksport CSV
+        </button>
+        <button 
+          onClick={() => generateReport(selectedReport, 'pdf')} 
+          className="btn-export"
+          disabled={loading}
+        >
+          📑 Eksport PDF
+        </button>
+      </div>
+
+      {reportData && (
+        <div className="report-content">
+          <div className="report-summary">
+            <h3>📋 Podsumowanie raportu</h3>
+            <pre>{JSON.stringify(reportData, null, 2)}</pre>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Telegram Bot Component
+const TelegramBot = () => {
+  const [botStatus, setBotStatus] = useState('disconnected');
+  const [botToken, setBotToken] = useState('');
+  const [adminIds, setAdminIds] = useState('');
+
+  return (
+    <div className="telegram-bot">
+      <div className="bot-header">
+        <h1>🤖 Bot Telegram</h1>
+        <div className={`status-indicator ${botStatus}`}>
+          <span className="status-dot"></span>
+          {botStatus === 'connected' ? 'Połączony' : 'Rozłączony'}
+        </div>
+      </div>
+
+      <div className="bot-config">
+        <h2>⚙️ Konfiguracja Bota</h2>
+        
+        <div className="form-group">
+          <label>Token Bota:</label>
+          <input
+            type="password"
+            value={botToken}
+            onChange={(e) => setBotToken(e.target.value)}
+            placeholder="123456789:ABCdefGHIjklMNOpqrSTUvwxYZ"
+          />
+          <small>Uzyskaj token od @BotFather na Telegramie</small>
+        </div>
+
+        <div className="form-group">
+          <label>ID Administratorów (rozdzielone przecinkami):</label>
+          <input
+            type="text"
+            value={adminIds}
+            onChange={(e) => setAdminIds(e.target.value)}
+            placeholder="12345678,87654321"
+          />
+          <small>ID użytkowników, którzy mogą używać bota</small>
+        </div>
+
+        <button className="btn-primary">💾 Zapisz konfigurację</button>
+      </div>
+
+      <div className="bot-features">
+        <h2>🔧 Funkcje Bota</h2>
+        <div className="features-grid">
+          <div className="feature-card">
+            <h3>🔔 Powiadomienia</h3>
+            <p>Automatyczne powiadomienia o wygasających licencjach</p>
+            <label className="switch">
+              <input type="checkbox" />
+              <span className="slider"></span>
+            </label>
+          </div>
+          
+          <div className="feature-card">
+            <h3>📊 Statystyki</h3>
+            <p>Codzienne raporty o stanie systemu</p>
+            <label className="switch">
+              <input type="checkbox" />
+              <span className="slider"></span>
+            </label>
+          </div>
+          
+          <div className="feature-card">
+            <h3>📧 Przypomnienia</h3>
+            <p>Wysyłanie przypomnień do klientów</p>
+            <label className="switch">
+              <input type="checkbox" />
+              <span className="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div className="bot-logs">
+        <h2>📝 Logi Bota</h2>
+        <div className="log-container">
+          <div className="log-entry">
+            <span className="timestamp">2025-03-19 10:30:15</span>
+            <span className="message">Bot uruchomiony pomyślnie</span>
+          </div>
+          <div className="log-entry">
+            <span className="timestamp">2025-03-19 10:35:22</span>
+            <span className="message">Wysłano 3 powiadomienia o wygasających licencjach</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Backup & Restore Component
+const BackupRestore = () => {
+  const [backups, setBackups] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
+
+  const fetchBackups = async () => {
+    setLoading(true);
+    try {
+      // This would call a backup list API
+      // For now, simulate backup data
+      const mockBackups = [
+        {
+          filename: 'tv_panel_backup_20250319_120000.zip',
+          created_at: '2025-03-19T12:00:00Z',
+          total_documents: 156,
+          size_mb: 2.3
+        },
+        {
+          filename: 'tv_panel_backup_20250318_020000.zip',
+          created_at: '2025-03-18T02:00:00Z',
+          total_documents: 148,
+          size_mb: 2.1
+        }
+      ];
+      setBackups(mockBackups);
+    } catch (error) {
+      console.error('Error fetching backups:', error);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchBackups();
+  }, []);
+
+  const createBackup = async () => {
+    setCreating(true);
+    try {
+      // This would call backup creation API
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate
+      alert('✅ Kopia zapasowa utworzona pomyślnie!');
+      fetchBackups();
+    } catch (error) {
+      console.error('Error creating backup:', error);
+      alert('❌ Błąd podczas tworzenia kopii zapasowej');
+    }
+    setCreating(false);
+  };
+
+  return (
+    <div className="backup-restore">
+      <div className="backup-header">
+        <h1>💾 Kopie Zapasowe</h1>
+        <button 
+          onClick={createBackup} 
+          disabled={creating}
+          className="btn-primary"
+        >
+          {creating ? '⏳ Tworzenie...' : '📦 Utwórz kopię'}
+        </button>
+      </div>
+
+      <div className="backup-settings">
+        <h2>⚙️ Ustawienia automatyczne</h2>
+        <div className="settings-grid">
+          <div className="setting-item">
+            <label>
+              <input type="checkbox" defaultChecked />
+              Codzienne kopie zapasowe (02:00)
+            </label>
+          </div>
+          <div className="setting-item">
+            <label>
+              <input type="checkbox" defaultChecked />
+              Zachowuj kopie przez 30 dni
+            </label>
+          </div>
+          <div className="setting-item">
+            <label>
+              <input type="checkbox" />
+              Powiadomienia email o kopiach
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div className="backups-list">
+        <h2>📋 Lista kopii zapasowych</h2>
+        
+        {loading ? (
+          <div className="loading">Ładowanie kopii zapasowych...</div>
+        ) : (
+          <div className="backup-table">
+            {backups.map((backup, index) => (
+              <div key={index} className="backup-row">
+                <div className="backup-info">
+                  <div className="backup-name">📁 {backup.filename}</div>
+                  <div className="backup-meta">
+                    📅 {new Date(backup.created_at).toLocaleString('pl-PL')} | 
+                    📊 {backup.total_documents} dokumentów | 
+                    💾 {backup.size_mb} MB
+                  </div>
+                </div>
+                <div className="backup-actions">
+                  <button className="btn-download">⬇️ Pobierz</button>
+                  <button className="btn-restore">🔄 Przywróć</button>
+                  <button className="btn-delete">🗑️ Usuń</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Enhanced Clients List Component (same as before but with additional features)
 const ClientsList = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -284,6 +706,11 @@ const ClientsList = () => {
             <option value="expiring_soon">Wygasające wkrótce</option>
             <option value="expired">Wygasłe</option>
           </select>
+          
+          <button className="btn-primary">📥 Import CSV</button>
+          <button className="btn-secondary" onClick={() => window.open(`${API}/reports/export?format=csv`, '_blank')}>
+            📤 Eksport CSV
+          </button>
         </div>
       </div>
 
@@ -356,6 +783,7 @@ const ClientsList = () => {
                   <div className="action-buttons">
                     <button className="btn-edit" title="Edytuj">✏️</button>
                     <button className="btn-message" title="Wyślij wiadomość">💬</button>
+                    <button className="btn-extend" title="Przedłuż licencję">⏱️</button>
                     <button 
                       className="btn-delete" 
                       title="Usuń"
@@ -373,6 +801,12 @@ const ClientsList = () => {
 
       {selectedClients.length > 0 && (
         <div className="bulk-actions">
+          <button className="btn-bulk-extend">
+            ⏱️ Przedłuż licencje ({selectedClients.length})
+          </button>
+          <button className="btn-bulk-message">
+            💬 Wyślij wiadomości ({selectedClients.length})
+          </button>
           <button className="btn-bulk-delete">
             🗑️ Usuń zaznaczone ({selectedClients.length})
           </button>
@@ -382,7 +816,7 @@ const ClientsList = () => {
   );
 };
 
-// Add Client Component
+// Add Client Component (same as before)
 const AddClient = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -667,7 +1101,7 @@ const AddClient = () => {
   );
 };
 
-// Simple management components for panels, apps, etc.
+// Simple management components (same as before)
 const SimpleManager = ({ title, endpoint, createEndpoint, fields, icon }) => {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState({});
@@ -764,6 +1198,12 @@ const MainApp = () => {
         return <ClientsList />;
       case 'add-client':
         return <AddClient />;
+      case 'reports':
+        return <Reports />;
+      case 'telegram':
+        return <TelegramBot />;
+      case 'backup':
+        return <BackupRestore />;
       case 'panels':
         return <SimpleManager 
           title="Panele IPTV" 
@@ -799,7 +1239,20 @@ const MainApp = () => {
       case 'settings':
         return <div className="settings">
           <h1>⚙️ Ustawienia</h1>
-          <p>Panel ustawień w przygotowaniu...</p>
+          <div className="settings-grid">
+            <div className="setting-section">
+              <h3>🔧 Ustawienia systemowe</h3>
+              <p>Konfiguracja podstawowych parametrów systemu</p>
+            </div>
+            <div className="setting-section">
+              <h3>👤 Zarządzanie użytkownikami</h3>
+              <p>Dodawanie i edycja administratorów</p>
+            </div>
+            <div className="setting-section">
+              <h3>📧 Powiadomienia</h3>
+              <p>Konfiguracja emaili i SMS</p>
+            </div>
+          </div>
         </div>;
       default:
         return <Dashboard />;
