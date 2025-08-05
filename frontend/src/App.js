@@ -698,17 +698,22 @@ const AddClient = () => {
             </div>
             
             <div className="form-group">
-              <label>Hasło</label>
+              <label>Hasło *</label>
               <div className="password-input">
                 <input
-                  type="text"
+                  type="password"
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
+                  placeholder="Wprowadź hasło ręcznie"
+                  required
                 />
-                <button type="button" onClick={generatePassword} className="btn-generate">
+                <button type="button" onClick={generatePassword} className="btn-generate" title="Wygeneruj losowe hasło">
                   🎲 Generuj
                 </button>
               </div>
+              <small style={{color: '#888', fontSize: '0.8rem'}}>
+                Hasło musi być wprowadzone ręcznie. Użyj przycisku "Generuj" dla losowego hasła.
+              </small>
             </div>
           </div>
 
