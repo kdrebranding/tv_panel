@@ -152,12 +152,314 @@ body {
   margin-bottom: 2rem;
 }
 
+/* ============ SQL EDITION STYLES ============ */
 .logo-section h1 {
   font-size: 2.5rem;
-  background: linear-gradient(135deg, #61dafb, #21d4fd);
+  background: linear-gradient(135deg, #4db6ac, #26a69a);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 0.5rem;
+}
+
+.sidebar-header h2 {
+  color: #4db6ac;
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(77, 182, 172, 0.3);
+  margin-bottom: 0.25rem;
+}
+
+.nav-item:hover {
+  background: rgba(77, 182, 172, 0.1);
+  color: #4db6ac;
+  border-left-color: #4db6ac;
+}
+
+.nav-item.active {
+  background: rgba(77, 182, 172, 0.15);
+  color: #4db6ac;
+  border-left-color: #4db6ac;
+  font-weight: 600;
+}
+
+/* ============ EDITABLE TABLE STYLES ============ */
+.editable-table {
+  background: rgba(26, 26, 27, 0.6);
+  border-radius: 12px;
+  padding: 2rem;
+  border: 1px solid #333;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.table-header h1 {
+  color: #4db6ac;
+  font-size: 1.8rem;
+}
+
+.table-controls {
+  display: flex;
+  gap: 1rem;
+}
+
+.add-form {
+  background: rgba(15, 15, 16, 0.8);
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid #333;
+  margin-bottom: 2rem;
+}
+
+.add-form h3 {
+  color: #4db6ac;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(15, 15, 16, 0.8);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.data-table th {
+  background: rgba(77, 182, 172, 0.1);
+  color: #4db6ac;
+  padding: 1rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #333;
+}
+
+.data-table td {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  vertical-align: top;
+}
+
+.data-table tr:hover {
+  background: rgba(77, 182, 172, 0.05);
+}
+
+.data-table tr.editing {
+  background: rgba(77, 182, 172, 0.1);
+  border: 2px solid #4db6ac;
+}
+
+.data-table input,
+.data-table select,
+.data-table textarea {
+  width: 100%;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 0.85rem;
+  min-width: 120px;
+}
+
+.data-table input:disabled,
+.data-table select:disabled,
+.data-table textarea:disabled {
+  background: transparent;
+  border: none;
+  color: #e0e0e0;
+}
+
+.data-table input:focus,
+.data-table select:focus,
+.data-table textarea:focus {
+  outline: none;
+  border-color: #4db6ac;
+  box-shadow: 0 0 0 2px rgba(77, 182, 172, 0.2);
+}
+
+.field-checkbox {
+  font-size: 1.2rem;
+}
+
+.field-textarea {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-success {
+  background: rgba(72, 187, 120, 0.2);
+  color: #68d391;
+  border: 1px solid #48bb78;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  background: rgba(72, 187, 120, 0.3);
+}
+
+.btn-secondary {
+  background: rgba(156, 163, 175, 0.2);
+  color: #d1d5db;
+  border: 1px solid #6b7280;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(156, 163, 175, 0.3);
+}
+
+/* ============ JSON DATA OVERVIEW ============ */
+.json-data-overview {
+  background: rgba(15, 15, 16, 0.6);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #333;
+  margin-top: 2rem;
+}
+
+.json-data-overview h2 {
+  color: #e0e0e0;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+}
+
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.data-card {
+  background: rgba(77, 182, 172, 0.1);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(77, 182, 172, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.data-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(77, 182, 172, 0.2);
+  border-color: #4db6ac;
+}
+
+.data-card h3 {
+  color: #4db6ac;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.data-card p {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* ============ ENHANCED FORM STYLES ============ */
+.client-form .form-section {
+  background: rgba(15, 15, 16, 0.5);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.client-form .form-section h3 {
+  color: #4db6ac;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ============ STATUS INDICATORS ============ */
+.status-indicator.sql {
+  background: rgba(77, 182, 172, 0.2);
+  color: #4db6ac;
+  border: 1px solid #4db6ac;
+}
+
+/* ============ RESPONSIVE UPDATES ============ */
+@media (max-width: 768px) {
+  .data-table {
+    font-size: 0.8rem;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+/* ============ LOADING AND STATES ============ */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+  color: #4db6ac;
+  background: rgba(77, 182, 172, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(77, 182, 172, 0.2);
+}
+
+/* ============ SQL DATABASE THEMES ============ */
+.sidebar-footer small {
+  color: #4db6ac;
+  font-size: 0.7rem;
+  opacity: 0.8;
 }
 
 .logo-section p {
