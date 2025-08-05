@@ -704,6 +704,44 @@ async def update_question(question_id: int, question_data: QuestionCreate, curre
     db.refresh(question)
     return question
 
+# Smart TV Activations
+@api_router.get("/smart-tv-activations", response_model=List[SmartTVActivationResponse])
+async def get_smart_tv_activations(current_admin = Depends(get_current_admin), db: Session = Depends(get_db)):
+    activations = db.query(SmartTVActivation).all()
+    return activations
+
+@api_router.post("/smart-tv-activations", response_model=SmartTVActivationResponse)
+async def create_smart_tv_activation(activation_data: SmartTVActivationCreate, current_admin = Depends(get_current_admin), db: Session = Depends(get_db)):
+    activation = SmartTVActivation(**activation_data.dict())
+    db.add(activation)
+    db.commit()
+    db.refresh(activation)
+    return activation
+
+@api_router.put("/smart-tv-activations/{activation_id}")
+async def update_smart_tv_activation(activation_id: int, activation_data: SmartTVActivationCreate, current_admin = Depends(get_current_admin), db: Session = Depends(get_db)):
+    activation = db.query(SmartTVActivation).filter(SmartTVActivation.id == activation_id).first()
+    if not activation:
+        raise HTTPException(status_code=404, detail="Smart TV activation not found")
+    
+    for key, value in activation_data.dict().items():
+        setattr(activation, key, value)
+    
+    activation.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(activation)
+    return activation
+
+@api_router.delete("/smart-tv-activations/{activation_id}")
+async def delete_smart_tv_activation(activation_id: int, current_admin = Depends(get_current_admin), db: Session = Depends(get_db)):
+    activation = db.query(SmartTVActivation).filter(SmartTVActivation.id == activation_id).first()
+    if not activation:
+        raise HTTPException(status_code=404, detail="Smart TV activation not found")
+    
+    db.delete(activation)
+    db.commit()
+    return {"message": "Smart TV activation deleted successfully"}
+
 # Smart TV Apps
 @api_router.get("/smart-tv-apps", response_model=List[SmartTVAppResponse])
 async def get_smart_tv_apps(current_admin = Depends(get_current_admin), db: Session = Depends(get_db)):
