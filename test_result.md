@@ -192,10 +192,11 @@ metadata:
 
 test_plan:
   current_focus:
+    - "SQL Database Connection"
     - "SQL API Endpoints"
-    - "SQL Integration UI"
-    - "Editing Functionality CSS"
-  stuck_tasks: []
+  stuck_tasks:
+    - "SQL Database Connection"
+    - "SQL API Endpoints"
   test_all: true
   test_priority: "high_first"
 
