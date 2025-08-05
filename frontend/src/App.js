@@ -1145,8 +1145,8 @@ const TelegramBot = () => {
     </div>
   );
 };
-      
-      case 'settings':
+      case 'telegram-bot':
+        return <TelegramBot />;
         return (
           <div className="settings">
             <h1>⚙️ Ustawienia systemu</h1>
