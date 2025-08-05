@@ -56,6 +56,8 @@ class App(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     url = Column(String(255))
+    package_name = Column(String(255))  # Nazwa pakietu Android
+    app_code = Column(Text)  # Kod aplikacji dla bota
     description = Column(Text)
     created_at = Column(DateTime, default=func.current_timestamp())
     updated_at = Column(DateTime, default=func.current_timestamp(), onupdate=func.current_timestamp())
