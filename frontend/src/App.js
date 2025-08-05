@@ -210,7 +210,7 @@ const Dashboard = () => {
       </div>
 
       <div className="quick-actions">
-        <h2>🚀 Zarządzanie danymi JSON</h2>
+        <h2>🚀 Zarządzanie danymi SQL</h2>
         <div className="action-buttons">
           <button className="btn-action" onClick={() => window.open(`${API}/export-csv/clients`, '_blank')}>
             📊 Eksport CSV Klientów
@@ -218,29 +218,29 @@ const Dashboard = () => {
           <button className="btn-action" onClick={() => window.open(`${API}/export-csv/panels`, '_blank')}>
             📺 Eksport Paneli
           </button>
-          <button className="btn-action" onClick={() => alert('Import JSON: Użyj Upload w sekcjach zarządzania')}>
-            📥 Import JSON
+          <button className="btn-action" onClick={() => setActiveView('settings')}>
+            ⚙️ Ustawienia systemu
           </button>
-          <button className="btn-action">🔐 Generator haseł</button>
+          <button className="btn-action" onClick={generatePassword}>🔐 Generator haseł</button>
         </div>
       </div>
 
       <div className="json-data-overview">
-        <h2>📋 Przegląd danych JSON</h2>
+        <h2>📋 Zarządzanie sekcjami</h2>
         <div className="data-grid">
-          <div className="data-card">
+          <div className="data-card clickable" onClick={() => setActiveView('payment-methods')}>
             <h3>💳 Metody płatności</h3>
             <p>Zarządzaj dostępnymi opcjami płatności</p>
           </div>
-          <div className="data-card">
+          <div className="data-card clickable" onClick={() => setActiveView('pricing-config')}>
             <h3>💰 Konfiguracja cennika</h3>
             <p>Ustawiaj ceny i pakiety subskrypcji</p>
           </div>
-          <div className="data-card">
+          <div className="data-card clickable" onClick={() => setActiveView('faq')}>
             <h3>❓ Pytania FAQ</h3>
             <p>Zarządzaj często zadawanymi pytaniami</p>
           </div>
-          <div className="data-card">
+          <div className="data-card clickable" onClick={() => setActiveView('smart-tv-apps')}>
             <h3>📺 Aplikacje Smart TV</h3>
             <p>Konfiguruj aplikacje dla Smart TV</p>
           </div>
