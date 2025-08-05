@@ -681,6 +681,62 @@ async def update_question(question_id: int, question_data: QuestionCreate, curre
     db.refresh(question)
     return question
 
+# Smart TV Apps
+@api_router.get("/smart-tv-apps", response_model=List[SmartTVAppResponse])
+async def get_smart_tv_apps(current_admin = Depends(get_current_admin), db: Session = Depends(get_db)):
+    apps = db.query(SmartTVApp).all()
+    return apps
+
+@api_router.post("/smart-tv-apps", response_model=SmartTVAppResponse)
+async def create_smart_tv_app(app_data: SmartTVAppCreate, current_admin = Depends(get_current_admin), db: Session = Depends(get_db)):
+    app = SmartTVApp(**app_data.dict())
+    db.add(app)
+    db.commit()
+    db.refresh(app)
+    return app
+
+@api_router.put("/smart-tv-apps/{app_id}")
+async def update_smart_tv_app(app_id: int, app_data: SmartTVAppCreate, current_admin = Depends(get_current_admin), db: Session = Depends(get_db)):
+    app = db.query(SmartTVApp).filter(SmartTVApp.id == app_id).first()
+    if not app:
+        raise HTTPException(status_code=404, detail="Smart TV app not found")
+    
+    for key, value in app_data.dict().items():
+        setattr(app, key, value)
+    
+    app.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(app)
+    return app
+
+# Android Apps
+@api_router.get("/android-apps", response_model=List[AndroidAppResponse])
+async def get_android_apps(current_admin = Depends(get_current_admin), db: Session = Depends(get_db)):
+    apps = db.query(AndroidApp).all()
+    return apps
+
+@api_router.post("/android-apps", response_model=AndroidAppResponse)
+async def create_android_app(app_data: AndroidAppCreate, current_admin = Depends(get_current_admin), db: Session = Depends(get_db)):
+    app = AndroidApp(**app_data.dict())
+    db.add(app)
+    db.commit()
+    db.refresh(app)
+    return app
+
+@api_router.put("/android-apps/{app_id}")
+async def update_android_app(app_id: int, app_data: AndroidAppCreate, current_admin = Depends(get_current_admin), db: Session = Depends(get_db)):
+    app = db.query(AndroidApp).filter(AndroidApp.id == app_id).first()
+    if not app:
+        raise HTTPException(status_code=404, detail="Android app not found")
+    
+    for key, value in app_data.dict().items():
+        setattr(app, key, value)
+    
+    app.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(app)
+    return app
+
 # Dashboard Stats
 @api_router.get("/dashboard/stats")
 async def get_dashboard_stats(current_admin = Depends(get_current_admin), db: Session = Depends(get_db)):
