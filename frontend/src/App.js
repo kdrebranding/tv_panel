@@ -207,28 +207,32 @@ const Dashboard = ({ setActiveView }) => {
       </div>
       
       <div className="stats-grid">
-        <div className="stat-card total">
+        <div className="stat-card total clickable" onClick={() => setActiveView('clients')}>
           <div className="stat-number">{stats.total_clients || 0}</div>
           <div className="stat-label">Wszyscy klienci</div>
           <div className="stat-trend">📈</div>
+          <div className="stat-action">👆 Kliknij aby zobaczyć</div>
         </div>
         
-        <div className="stat-card active">
+        <div className="stat-card active clickable" onClick={() => setActiveView('clients-active')}>
           <div className="stat-number">{stats.active_clients || 0}</div>
           <div className="stat-label">Aktywni klienci</div>
           <div className="stat-trend">✅</div>
+          <div className="stat-action">👆 Kliknij aby zobaczyć</div>
         </div>
         
-        <div className="stat-card warning">
+        <div className="stat-card warning clickable" onClick={() => setActiveView('clients-expiring')}>
           <div className="stat-number">{stats.expiring_soon || 0}</div>
           <div className="stat-label">Wygasający wkrótce</div>
           <div className="stat-trend">⚠️</div>
+          <div className="stat-action">👆 Kliknij aby zobaczyć</div>
         </div>
         
-        <div className="stat-card danger">
+        <div className="stat-card danger clickable" onClick={() => setActiveView('clients-expired')}>
           <div className="stat-number">{stats.expired_clients || 0}</div>
           <div className="stat-label">Wygasłe licencje</div>
           <div className="stat-trend">❌</div>
+          <div className="stat-action">👆 Kliknij aby zobaczyć</div>
         </div>
       </div>
 
