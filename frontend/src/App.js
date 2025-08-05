@@ -1047,7 +1047,7 @@ const MainApp = () => {
         );
       
       default:
-        return <Dashboard />;
+        return <Dashboard setActiveView={setActiveView} />;
     }
   };
 
