@@ -746,7 +746,7 @@ const EditableTable = ({ title, endpoint, fields, icon, canAdd = true, canDelete
             </tr>
           </thead>
           <tbody>
-            {items.map(item => (
+            {enhancedItems.map(item => (
               <tr key={item.id}>
                 {fields.map(field => (
                   <td key={field.key}>
@@ -755,7 +755,9 @@ const EditableTable = ({ title, endpoint, fields, icon, canAdd = true, canDelete
                         const updatedItem = {...item, [field.key]: value};
                         setItems(items.map(i => i.id === item.id ? updatedItem : i));
                       }, true) :
-                      (field.type === 'checkbox' ? (item[field.key] ? '✅' : '❌') : (item[field.key] || '-'))
+                      (field.type === 'checkbox' ? (item[field.key] ? '✅' : '❌') : 
+                      (field.key === 'days_to_expiry' ? renderField(field, item[field.key]) : 
+                      (item[field.key] || '-')))
                     }
                   </td>
                 ))}
