@@ -182,6 +182,12 @@ class PricingConfigCreate(BaseModel):
     description: Optional[str] = None
     features: Optional[str] = None
 
+class QuestionCreate(BaseModel):
+    question: str
+    answer: str
+    category: Optional[str] = None
+    is_active: bool = True
+
 class QuestionResponse(BaseModel):
     id: int
     question: str
