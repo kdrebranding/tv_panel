@@ -189,11 +189,51 @@ class QuestionResponse(BaseModel):
     category: Optional[str] = None
     is_active: bool
 
-class QuestionCreate(BaseModel):
-    question: str
-    answer: str
-    category: Optional[str] = None
+class SmartTVAppResponse(BaseModel):
+    id: int
+    name: str
+    platform: Optional[str] = None
+    download_url: Optional[str] = None
+    instructions: Optional[str] = None
+    version: Optional[str] = None
+    is_active: bool
+    icon: Optional[str] = None
+    requirements: Optional[str] = None
+
+class SmartTVAppCreate(BaseModel):
+    name: str
+    platform: Optional[str] = None
+    download_url: Optional[str] = None
+    instructions: Optional[str] = None
+    version: Optional[str] = None
     is_active: bool = True
+    icon: Optional[str] = None
+    requirements: Optional[str] = None
+
+class AndroidAppResponse(BaseModel):
+    id: int
+    name: str
+    package_name: Optional[str] = None
+    download_url: Optional[str] = None
+    play_store_url: Optional[str] = None
+    instructions: Optional[str] = None
+    version: Optional[str] = None
+    is_active: bool
+    icon: Optional[str] = None
+    minimum_android_version: Optional[str] = None
+    file_size: Optional[str] = None
+
+class AndroidAppCreate(BaseModel):
+    name: str
+    package_name: Optional[str] = None
+    download_url: Optional[str] = None
+    play_store_url: Optional[str] = None
+    instructions: Optional[str] = None
+    version: Optional[str] = None
+    is_active: bool = True
+    icon: Optional[str] = None
+    minimum_android_version: Optional[str] = None
+    file_size: Optional[str] = None
 
 # ============ AUTH FUNCTIONS ============
 
